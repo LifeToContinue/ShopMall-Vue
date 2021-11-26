@@ -1695,7 +1695,35 @@
 </template>
 
 <script>
-export default {};
+// import axios from 'axios'
+// import ajax from "../../../api/ajax";
+
+// import {reqCategoryListData} from "../../../api";
+// import {reqCategoryListData} from '@/api'
+export default {
+  name: "TypeNav",
+  mounted() {
+    //可以在这里发请求
+    // axios.get('http://39.98.123.211/api/product/getBaseCategoryList')
+    // .then((result)=>
+    //   console.log(result),
+    // )
+
+    //封装后的请求  不用谢公共服务器地址
+    /* ajax
+      .get("/api/product/getBaseCategoryList")
+      .then((result) => console.log(result)); */
+
+    //统一管理
+    // reqCategoryListData().then(
+    //   (result) => console.log(result),
+    //   (error) => console.log(error.message)
+    // );
+
+    //使用vuex的形式来获取数据  在这里需要dispatch actions方法
+    this.$store.dispatch('getCategoryListData')
+  },
+};
 </script>
 
 <style lang="less" scoped>
