@@ -2,6 +2,7 @@
   <div>
     <Header></Header>
     <router-view></router-view>
+    <!-- 通过路由元的方式来控制底部是否显示 -->
     <Footer></Footer>
   </div>
 </template>
