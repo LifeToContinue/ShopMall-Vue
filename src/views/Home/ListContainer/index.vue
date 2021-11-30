@@ -4,10 +4,14 @@
     <div class="sortList clearfix">
       <div class="center">
         <!--banner轮播-->
-        <div class="swiper-container" id="mySwiper">
+        <div class="swiper-container banner-container" id="mySwiper">
           <div class="swiper-wrapper">
-            <div class="swiper-slide">
-              <img src="./images/banner1.jpg" />
+            <div
+              class="swiper-slide"
+              v-for="banner in bannerList"
+              :key="banner.id"
+            >
+              <img :src="banner.imgUrl" />
             </div>
             <!-- <div class="swiper-slide">
               <img src="./images/banner2.jpg" />
@@ -101,8 +105,60 @@
 </template>
 
 <script>
+import { mapState } from "vuex";
+// import 'swiper/css/swiper.min.css'
+import Swiper from "swiper";
+
 export default {
-    name:'ListContainer'
+  name: "ListContainer",
+  computed: {
+    ...mapState("home", ["bannerList"]),
+  },
+  /* updated(){
+    // 启用swiper插件
+    setTimeout(() => {
+      new Swiper('.swiper-container', {
+        slidesPerView: 1,
+        spaceBetween: 30,
+        loop: true,
+        pagination: {
+          el: '.swiper-pagination',
+          clickable: true,
+        },
+        navigation: {
+          nextEl: '.swiper-button-next',
+          prevEl: '.swiper-button-prev',
+        },
+      })
+    }, 1000)
+  }, */
+  mounted() {
+    this.$store.dispatch("home/getBannerListData");
+  },
+  watch: {
+    // bannerList数据只要一变 就会监视
+    bannerList() {
+      console.log("bannerList数据变了"); // 数据变了也就是说原来的空数组中有数据了但是不一定完全的渲染到页面上呢
+      this.$nextTick(() => {
+        // 启用swiper
+        // new Swiper('.swiper-container', {
+        new Swiper(".banner-container", {
+          slidesPerView: 1,
+          spaceBetween: 30,
+          autoplay: true,
+          loop: true,
+          pagination: {
+            el: ".swiper-pagination",
+            clickable: true,
+          },
+          navigation: {
+            nextEl: ".swiper-button-next",
+            prevEl: ".swiper-button-prev",
+          },
+        });
+      });
+    },
+  },
 };
 </script>
 

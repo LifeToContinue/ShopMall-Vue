@@ -8,15 +8,19 @@
 
 <script>
 import Toolbar from './Toolbar'
-import TypeNav from './TypeNav'
 import Main from './Main'
 
 export default {
   name:'Search',
   components:{
     Toolbar,
-    TypeNav,
     Main
+  },
+  mounted(){
+    
+  },
+  beforeDestroy(){
+    
   }
 }
 </script>

@@ -38,7 +38,10 @@ const router=new VueRouter({
         {
           name:'home',
           path:'/home',
-          component:Home
+          component:Home,
+          meta:{
+            isShowTypeNav:true
+          }
         },
         {
           name:'login',
@@ -59,7 +62,10 @@ const router=new VueRouter({
         {
           name:'search',
           path:'/search',
-          component:Search
+          component:Search,
+          meta:{
+            // isHiddenNav:false
+          }
         },
         {
           name:'addcart',

@@ -35,7 +35,7 @@
           <input
             type="text"
             id="autocomplete"
-            class="input-error input-xxlarge"
+            class="input-error input-xxlarge"  v-model="keyword"
           />
           <button class="sui-btn btn-xlarge btn-danger" type="button" @click="btnSearch">
             搜索
@@ -49,9 +49,25 @@
 <script>
 export default {
   name: "Header",
+  data(){
+    return{
+      keyword:''
+    }
+  },
   methods: {
       btnSearch(){
-          this.$router.push('/search').catch(()=>{})
+          // this.$router.push('/search')
+          // console.log(this.$route);
+          let {query} =this.$route
+          this.$router.push({
+            name:'search',//路由名称
+            query:{
+              //路由跳转时，如果参数没有值是undefined的时候，路由会自动过滤掉undefined的值
+              ...query,
+              keyword:this.keyword || undefined
+            }
+          })
+          this.keyword=''
       }
   },
 };

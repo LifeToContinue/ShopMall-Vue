@@ -8,14 +8,12 @@
 
 <script>
 import Toolbar from "./Toolbar";
-import TypeNav from "./TypeNav";
 import Cart_1 from './Cart_1'
 
 export default {
   name: "Cart",
   components: {
     Toolbar,
-    TypeNav,
     Cart_1
   },
 };

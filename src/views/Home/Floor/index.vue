@@ -1,5 +1,4 @@
 <template>
-  <!--楼层-->
   <div class="floor">
     <div class="py-container">
       <div class="title clearfix">
@@ -95,11 +94,12 @@
 
 <script>
 export default {
-  name: "Floor_1",
+  name:'Floor',
+  props:['floor']
 };
 </script>
 
-<style lang='less' scoped>
+<style lang="less" scoped>
 .floor {
   margin-top: 15px;
 

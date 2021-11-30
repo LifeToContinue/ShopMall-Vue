@@ -10,7 +10,6 @@
 
 <script>
 
-import TypeNav from "./TypeNav";
 import Toolbar from './Toolbar'
 import Like from './Like'
 import Con_1 from './Con_1'
@@ -18,7 +17,6 @@ import ProductDetail from './ProductDetail'
 export default {
   name: "Detail",
   components: {
-    TypeNav,
     Toolbar,
     ProductDetail,
     Like,

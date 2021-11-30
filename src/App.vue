@@ -9,15 +9,21 @@
 
 <script>
 //引入其它组件 App.vue相当于一个组件的大容器
-import Header from './components/Header'
-import Footer from './components/Footer'
+import Header from "./components/Header";
+import Footer from "./components/Footer";
 export default {
-  name:'App',
-  components:{Header,
-    Footer}
-}
+  name: "App",
+  components: {
+    Header,
+    Footer,
+  },
+  mounted() {
+    //三级导航的派发请求
+
+    this.$store.dispatch("home/getCategoryListData");
+  },
+};
 </script>
 
 <style>
-
 </style>
