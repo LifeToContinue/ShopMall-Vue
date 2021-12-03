@@ -8,7 +8,8 @@ import { reqCategoryListData, reqBannerListData,reqFloorsListData } from '../api
 
 const state = {
     categoryList: [],
-    bannerList: []
+    bannerList: [],
+    floorList:[]
 }
 const actions = {
     //可以进行异步操作

@@ -2,6 +2,7 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import home from './home'
+import search from './search'
 
 // 2. 注册模块
 Vue.use(Vuex)
@@ -24,7 +25,7 @@ const store = new Vuex.Store({
     actions,
     mutations,
     getters,
-    modules:{home}
+    modules:{home,search}
 })
 
 

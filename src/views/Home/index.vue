@@ -5,7 +5,7 @@
     <TodayRecommend></TodayRecommend>
     <Rank></Rank>
     <Like></Like>
-    <Floor ></Floor>
+    <Floor  v-for="floor in floorList" :key="floor.id" :floor="floor" :cname="'floor-swiper'+floor.id"></Floor>
     <!-- <Floor></Floor> -->
     <Brand></Brand>
     <Toolbar></Toolbar>
@@ -23,8 +23,14 @@ import Toolbar from "./Toolbar";
 
 import {mapState} from 'vuex'
 
+
 export default {
   name: "Home",
+  data(){
+    return{
+      cname:''
+    }
+  },
   components: {
     ListContainer,
     TodayRecommend,
