@@ -5,132 +5,25 @@
       <div class="fl key brand">品牌</div>
       <div class="value logos">
         <ul class="logo-list">
-          <li v-for="trade in trademarkList" :key="trade.tmId">
+          <li
+            v-for="trade in trademarkList"
+            :key="trade.tmId"
+            @click="handlerTrademark(trade)"
+          >
             {{ trade.tmName }}
           </li>
         </ul>
       </div>
     </div>
-    <div class="type-wrap">
-      <div class="fl key">网络制式</div>
+    <div class="type-wrap" v-for="attr in attrsList" :key="attr.attrId">
+      <div class="fl key">{{ attr.attrName }}</div>
       <div class="fl value">
         <ul class="type-list">
-          <li>
-            <a>GSM（移动/联通2G）</a>
+          <li v-for="attrValue in attr.attrValueList" :key="attrValue">
+            <a @click="handlerAttr(attrValue,attr)">{{ attrValue }}</a>
           </li>
-          <li>
-            <a>电信2G</a>
-          </li>
-          <li>
-            <a>电信3G</a>
-          </li>
-          <li>
-            <a>移动3G</a>
-          </li>
-          <li>
-            <a>联通3G</a>
-          </li>
-          <li>
-            <a>联通4G</a>
-          </li>
-          <li>
-            <a>电信3G</a>
-          </li>
-          <li>
-            <a>移动3G</a>
-          </li>
-          <li>
-            <a>联通3G</a>
-          </li>
-          <li>
-            <a>联通4G</a>
-          </li>
-        </ul>
-      </div>
-      <div class="fl ext"></div>
-    </div>
-    <div class="type-wrap">
-      <div class="fl key">显示屏尺寸</div>
-      <div class="fl value">
-        <ul class="type-list">
-          <li>
-            <a>4.0-4.9英寸</a>
-          </li>
-          <li>
-            <a>4.0-4.9英寸</a>
-          </li>
-        </ul>
-      </div>
-      <div class="fl ext"></div>
-    </div>
-    <div class="type-wrap">
-      <div class="fl key">摄像头像素</div>
-      <div class="fl value">
-        <ul class="type-list">
-          <li>
-            <a>1200万以上</a>
-          </li>
-          <li>
-            <a>800-1199万</a>
-          </li>
-          <li>
-            <a>1200-1599万</a>
-          </li>
-          <li>
-            <a>1600万以上</a>
-          </li>
-          <li>
-            <a>无摄像头</a>
-          </li>
-        </ul>
-      </div>
-      <div class="fl ext"></div>
-    </div>
-    <div class="type-wrap">
-      <div class="fl key">价格</div>
-      <div class="fl value">
-        <ul class="type-list">
-          <li>
-            <a>0-500元</a>
-          </li>
-          <li>
-            <a>500-1000元</a>
-          </li>
-          <li>
-            <a>1000-1500元</a>
-          </li>
-          <li>
-            <a>1500-2000元</a>
-          </li>
-          <li>
-            <a>2000-3000元 </a>
-          </li>
-          <li>
-            <a>3000元以上</a>
-          </li>
-        </ul>
-      </div>
-      <div class="fl ext"></div>
-    </div>
-    <div class="type-wrap">
-      <div class="fl key">更多筛选项</div>
-      <div class="fl value">
-        <ul class="type-list">
-          <li>
-            <a>特点</a>
-          </li>
-          <li>
-            <a>系统</a>
-          </li>
-          <li>
-            <a>手机内存 </a>
-          </li>
-          <li>
-            <a>单卡双卡</a>
-          </li>
-          <li>
-            <a>其他</a>
-          </li>
+          <!-- 品牌子属性 -->
+          
         </ul>
       </div>
       <div class="fl ext"></div>
@@ -143,8 +36,18 @@ import { mapGetters } from "vuex";
 export default {
   name: "SearchSelector",
   computed: {
-    ...mapGetters("search", ['trademarkList','attrsList']),
-  }
+    ...mapGetters("search", ["trademarkList", "attrsList"]),
+  },
+  methods: {
+    //向父组件传递trademark参数
+    handlerTrademark(attr) {
+      // console.log(trademark);
+      this.$emit("get-trademark", attr);
+    },
+    handlerAttr(attrValue, attr) {
+      this.$emit("get-attr", attrValue, attr);
+    },
+  },
 };
 </script>
 

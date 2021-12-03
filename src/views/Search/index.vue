@@ -12,15 +12,32 @@
             </li>
           </ul>
           <ul class="fl sui-tag">
-            <li class="with-x">手机</li>
-            <li class="with-x">iphone<i>×</i></li>
-            <li class="with-x">华为<i>×</i></li>
-            <li class="with-x">OPPO<i>×</i></li>
+            <!-- 三级导航中的分类 -->
+            <li class="with-x" v-show="searchParams.categoryName">
+              {{ searchParams.categoryName
+              }}<i @click="removeCategoryName">×</i>
+            </li>
+            <!-- 搜索关键词 -->
+            <li class="with-x" v-show="searchParams.keyword">
+              {{ searchParams.keyword }}<i @click="removeKeyword">×</i>
+            </li>
+            <!-- 品牌属性 -->
+            <li class="with-x" v-show="searchParams.trademark">
+              {{ trademarkName }}<i @click="removeTrademark">×</i>
+            </li>
+            <!-- 售卖属性 -->
+            <li
+              class="with-x"
+              v-for="(prop, index) in searchParams.props"
+              :key="prop"
+            >
+              {{ prop | fmtPropName }}<i @click="removeProp(index)">×</i>
+            </li>
           </ul>
         </div>
 
         <!-- 搜索器 -->
-        <SearchSelector />
+        <SearchSelector @get-trademark="saveTrademark"  @get-attr="saveAttrValue"/>
 
         <!--商品展示区-->
         <div class="details clearfix">
@@ -89,35 +106,7 @@
             </ul>
           </div>
           <!-- 分页器 -->
-          <div class="fr page">
-            <div class="sui-pagination clearfix">
-              <ul>
-                <li class="prev disabled">
-                  <a href="#">«上一页</a>
-                </li>
-                <li class="active">
-                  <a href="#">1</a>
-                </li>
-                <li>
-                  <a href="#">2</a>
-                </li>
-                <li>
-                  <a href="#">3</a>
-                </li>
-                <li>
-                  <a href="#">4</a>
-                </li>
-                <li>
-                  <a href="#">5</a>
-                </li>
-                <li class="dotted"><span>...</span></li>
-                <li class="next">
-                  <a href="#">下一页»</a>
-                </li>
-              </ul>
-              <div><span>共10页&nbsp;</span></div>
-            </div>
-          </div>
+          <Pagination :total="91" :pageNo="16" :pageSize="3" :continues="5"></Pagination>
         </div>
       </div>
     </div>
@@ -125,7 +114,7 @@
 </template>
 
 <script>
-import { mapGetters} from "vuex";
+import { mapGetters } from "vuex";
 import SearchSelector from "./SearchSelector";
 export default {
   name: "Search",
@@ -141,12 +130,86 @@ export default {
         trademark: "", //品牌
         order: "", //排序方式
         pageNo: 1, //页码
-        pageSize: 10, //每页要显示的数量
+        pageSize: 40, //每页要显示的数量
       },
     };
   },
+  methods: {
+
+    search(){
+       this.$store.dispatch("search/getSearchInfoData", this.searchParams);
+    },
+    //1.移出面包屑中的三级导航分类名
+    removeCategoryName() {
+      const { keyword } = this.$route.query;
+      this.$router.push({
+        name: "search",
+        // query: { keyword: this.searchParams.keyword } // 要把关键词留下来 但是这种情况下会发两次请求 如果按之前的话
+        query: { keyword },
+      });
+    },
+    //2.移出面包屑中的关键词
+    removeKeyword() {
+      const { query } = this.$route;
+      this.$router.push({
+        name: "search",
+        query: {
+          ...query,
+          keyword: undefined, //路由会过滤掉值为undefined的参数
+        },
+      });
+
+      //触发事件总线上的事件
+      this.$bus.$emit('remove-keyword')
+    },
+    handlerTrade(trademark) {
+      // 触发自定义事件，将数据传递过去
+      this.$emit("get-trademark", trademark);
+    },
+    // 保存SearchSelector传递过来的trademark
+    saveTrademark(trademark) {
+      // 将trademark维护到searchParams中
+      this.searchParams.trademark = `${trademark.tmId}:${trademark.tmName}`;
+      // 发请求
+      this.search()
+    },
+    removeTrademark() {
+      // 所谓移除掉某个面包屑 其实就是将那个数据设置为undefined
+      // 因为移除某项面包屑之后，要重新发送请求，发送请求的时候，路由会将undefined值过滤掉
+      this.searchParams.trademark = undefined;
+
+      // 根据剩下或是修改后的参数继续发送请求，重新渲染商品列表
+      // 重新发送请求
+      this.search()
+    },
+    saveAttrValue(attrValue, parent) {
+      // console.log();
+      const prop = `${parent.attrId}:${attrValue}:${parent.attrName}`;
+      //如果没用这个属性的话，才需要往里添加，如果有了，则不需要添加
+      if (this.searchParams.props.indexOf(prop) == -1) {
+        this.searchParams.props.push(prop);
+      }
+      this.search()
+    },
+    removeProp(index){
+      //从searchParams.props这个数组总删除指定索引的那条数据
+      this.searchParams.props.splice(index,1)
+      //继续发送请求
+      this.search()
+    }
+  },
   computed: {
     ...mapGetters("search", ["goodsList"]),
+    trademarkName() {
+      const { trademark } = this.searchParams;
+      return trademark ? trademark.split(":")[1] : "";
+    },
+  },
+  filters: {
+    fmtPropName(rawPropName) {
+      const nameAttr = rawPropName.split(":");
+      return nameAttr[2] + ":" + nameAttr[1];
+    },
   },
   components: {
     SearchSelector,

@@ -35,9 +35,14 @@
           <input
             type="text"
             id="autocomplete"
-            class="input-error input-xxlarge"  v-model="keyword"
+            class="input-error input-xxlarge"
+            v-model="keyword"
           />
-          <button class="sui-btn btn-xlarge btn-danger" type="button" @click="btnSearch">
+          <button
+            class="sui-btn btn-xlarge btn-danger"
+            type="button"
+            @click="btnSearch"
+          >
             搜索
           </button>
         </form>
@@ -49,26 +54,34 @@
 <script>
 export default {
   name: "Header",
-  data(){
-    return{
-      keyword:''
-    }
+  data() {
+    return {
+      keyword: "",
+    };
   },
   methods: {
-      btnSearch(){
-          // this.$router.push('/search')
-          // console.log(this.$route);
-          let {query} =this.$route
-          this.$router.push({
-            name:'search',//路由名称
-            query:{
-              //路由跳转时，如果参数没有值是undefined的时候，路由会自动过滤掉undefined的值
-              ...query,
-              keyword:this.keyword || undefined
-            }
-          })
-          this.keyword=''
-      }
+    btnSearch() {
+      // this.$router.push('/search')
+      // console.log(this.$route);
+      let { query } = this.$route;
+      this.$router.push({
+        name: "search", //路由名称
+        query: {
+          //路由跳转时，如果参数没有值是undefined的时候，路由会自动过滤掉undefined的值
+          ...query,
+          keyword: this.keyword || undefined,
+        },
+      });
+    },
+  },
+  mounted() {
+    //给全局事件总线注册一个时间
+    this.$bus.$on("remove-keyword", () => {
+      this.keyword = ""
+    });
+  },
+  beforeDestroy() {
+    this.$bus.$off('remove-keyword')
   },
 };
 </script>
