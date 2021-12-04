@@ -1,18 +1,18 @@
 <template>
   <div class="pagination">
-    <button>上一页</button>
-    <button>1</button>
-    <span>...</span>
+    <button @click="changePageNo(pageNo - 1)" :disabled="pageNo===1 || totalPage <1">上一页</button>
+    <button v-show="startAndEnd.start>1"  @click="changePageNo(1)">1</button>
+    <span v-show="startAndEnd.start>2">...</span>
     <!-- <button>{{ startAndEnd.start }}</button>
     <button>{{ pageNo - 1 }}</button>
     <button>{{ pageNo }}</button>
     <button>{{ pageNo + 1 }}</button>
     <button>{{ startAndEnd.end }}</button> -->
-    <button v-for="(_,index) in continues" :key="index">{{startAndEnd.start+index}}</button>
-    <button>···</button>
-    <button>{{ totalPage }}</button>
-    <button>总页数：{{ totalPage }}</button>
-    <button>下一页</button>
+    <button v-for="(_,index) in (startAndEnd.end-startAndEnd.start+1)" :key="index" :class="{active:pageNo===startAndEnd.start+index}" @click="changePageNo(index + startAndEnd.start)">{{startAndEnd.start+index}}</button>
+    <button v-show="startAndEnd.end<totalPage-1">···</button>
+    <!-- <button>{{ totalPage }}</button> -->
+    <span  @click="changePageNo(totalPage)">总页数：{{ totalPage }}</span>
+    <button @click="changePageNo(pageNo + 1)" :disabled="pageNo===totalPage || totalPage <1">下一页</button>
 
     <span>共 {{ total }} 条</span>
   </div>
@@ -21,7 +21,10 @@
 <script>
 export default {
   name: "Pagination",
-  props: ["total", "pageNo", "pageSize", "continues"],
+  props: ["total", "pageNo", "pageSize", "continues","changePageNo"],
+  methods: {
+      
+  },
   computed: {
     //总页数totalPage
     totalPage() {

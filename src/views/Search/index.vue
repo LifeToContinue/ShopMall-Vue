@@ -37,7 +37,10 @@
         </div>
 
         <!-- 搜索器 -->
-        <SearchSelector @get-trademark="saveTrademark"  @get-attr="saveAttrValue"/>
+        <SearchSelector
+          @get-trademark="saveTrademark"
+          @get-attr="saveAttrValue"
+        />
 
         <!--商品展示区-->
         <div class="details clearfix">
@@ -45,23 +48,25 @@
           <div class="sui-navbar">
             <div class="navbar-inner filter">
               <ul class="sui-nav">
-                <li class="active">
-                  <a href="#">综合</a>
+                <li :class="{ active: !isPrice }" @click="changeOrder(1)">
+                  <a
+                    >综合
+                    <span
+                      v-show="!isPrice"
+                      class="iconfont"
+                      :class="{ 'icon-shangfan': isUp, 'icon-xiafan': !isUp }"
+                    ></span
+                  ></a>
                 </li>
-                <li>
-                  <a href="#">销量</a>
-                </li>
-                <li>
-                  <a href="#">新品</a>
-                </li>
-                <li>
-                  <a href="#">评价</a>
-                </li>
-                <li>
-                  <a href="#">价格⬆</a>
-                </li>
-                <li>
-                  <a href="#">价格⬇</a>
+                <li :class="{ active: isPrice }" @click="changeOrder(2)">
+                  <a
+                    >价格
+                    <span
+                      v-show="isPrice"
+                      class="iconfont"
+                      :class="{ 'icon-shangfan': isUp, 'icon-xiafan': !isUp }"
+                    ></span
+                  ></a>
                 </li>
               </ul>
             </div>
@@ -72,9 +77,9 @@
               <li class="yui3-u-1-5" v-for="good in goodsList" :key="good.id">
                 <div class="list-wrap">
                   <div class="p-img">
-                    <a href="item.html" target="_blank"
-                      ><img :src="good.defaultImg"
-                    /></a>
+                    <router-link :to="'/detail/'+good.id" >
+                    <img :src="good.defaultImg"/>
+                    </router-link>
                   </div>
                   <div class="price">
                     <strong>
@@ -83,9 +88,11 @@
                     </strong>
                   </div>
                   <div class="attr">
-                    <a target="_blank" href="item.html" :title="good.title">{{
-                      good.title
-                    }}</a>
+                    <router-link
+                      :to="`/detail/${good.id}`"
+                      :title="good.title"
+                      >{{ good.title }}</router-link
+                    >
                   </div>
                   <div class="commit">
                     <i class="command">已有<span>2000</span>人评价</i>
@@ -106,7 +113,14 @@
             </ul>
           </div>
           <!-- 分页器 -->
-          <Pagination :total="91" :pageNo="16" :pageSize="3" :continues="5"></Pagination>
+          <!-- <Pagination :total="91" :pageNo="28" :pageSize="3" :continues="5"></Pagination> -->
+          <Pagination
+            :total="total"
+            :pageNo="searchParams.pageNo"
+            :pageSize="searchParams.pageSize"
+            :continues="5"
+            :changePageNo="getPageNo"
+          ></Pagination>
         </div>
       </div>
     </div>
@@ -130,14 +144,13 @@ export default {
         trademark: "", //品牌
         order: "", //排序方式
         pageNo: 1, //页码
-        pageSize: 40, //每页要显示的数量
+        pageSize: 5, //每页要显示的数量
       },
     };
   },
   methods: {
-
-    search(){
-       this.$store.dispatch("search/getSearchInfoData", this.searchParams);
+    search() {
+      this.$store.dispatch("search/getSearchInfoData", this.searchParams);
     },
     //1.移出面包屑中的三级导航分类名
     removeCategoryName() {
@@ -160,7 +173,7 @@ export default {
       });
 
       //触发事件总线上的事件
-      this.$bus.$emit('remove-keyword')
+      this.$bus.$emit("remove-keyword");
     },
     handlerTrade(trademark) {
       // 触发自定义事件，将数据传递过去
@@ -171,7 +184,7 @@ export default {
       // 将trademark维护到searchParams中
       this.searchParams.trademark = `${trademark.tmId}:${trademark.tmName}`;
       // 发请求
-      this.search()
+      this.search();
     },
     removeTrademark() {
       // 所谓移除掉某个面包屑 其实就是将那个数据设置为undefined
@@ -180,7 +193,7 @@ export default {
 
       // 根据剩下或是修改后的参数继续发送请求，重新渲染商品列表
       // 重新发送请求
-      this.search()
+      this.search();
     },
     saveAttrValue(attrValue, parent) {
       // console.log();
@@ -189,20 +202,61 @@ export default {
       if (this.searchParams.props.indexOf(prop) == -1) {
         this.searchParams.props.push(prop);
       }
-      this.search()
+      this.search();
     },
-    removeProp(index){
+    removeProp(index) {
       //从searchParams.props这个数组总删除指定索引的那条数据
-      this.searchParams.props.splice(index,1)
+      this.searchParams.props.splice(index, 1);
       //继续发送请求
-      this.search()
-    }
+      this.search();
+    },
+    getPageNo(currentPage) {
+      console.log("currentPage", currentPage);
+      //根据
+      this.searchParams.pageNo = currentPage;
+      this.search();
+    },
+    // 8. 排序
+    changeOrder(newNum) {
+      /**
+       * 基本思路:
+       * 1. 首先先获取order中的原来的值 oldNum值 及排序的类型asc desc
+       * 2. 用最新的newNum和原来的oldNumnum进行比较 来判断需要不需要高亮
+       * 3. 如果两个值相同 说明单击的还是原来的按钮，此时不需要改变高亮，只需要将排序取反
+       */
+      // 8.1 先获取order中原来的数据
+      const oldNum = this.searchParams.order.split(":")[0];
+      const oldType = this.searchParams.order.split(":")[1];
+      // 8.2 用传过来的数字和原来的数字进行判断
+      if (oldNum == newNum) {
+        // 说明 当前高亮不需要改变 只需要改变排序状态即可 也就是修改order中的排序
+        this.searchParams.order = `${oldNum}:${
+          oldType === "asc" ? "desc" : "asc"
+        }`;
+      } else {
+        this.searchParams.order = `${newNum}:desc`;
+      }
+
+      // 8.3 发送请求进行排序
+      this.search();
+    },
   },
   computed: {
-    ...mapGetters("search", ["goodsList"]),
+    ...mapGetters("search", ["goodsList", "total"]),
     trademarkName() {
       const { trademark } = this.searchParams;
       return trademark ? trademark.split(":")[1] : "";
+    },
+    // 判断综合或是价格高亮
+    isPrice() {
+      // let num = this.searchParams.order.split(':')[0]
+      // return num === '2'
+      // 判断是不是价格 如果2代表的是价格需要高亮 反之则综合高亮
+      return this.searchParams.order.split(":")[0] === "2";
+    },
+    // 判断箭头是否向上 或是向下
+    isUp() {
+      return this.searchParams.order.split(":")[1] === "asc";
     },
   },
   filters: {
