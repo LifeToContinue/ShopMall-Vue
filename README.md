@@ -1,24 +1,18 @@
-# shopmall
-
 ## Project setup
-```
-yarn install
+
+# 尚品汇前台项目
+
+## 运行步骤
+
+### 安装依赖
+
+```js
+npm i
 ```
 
-### Compiles and hot-reloads for development
-```
-yarn serve
+### 运行
+
+```js
+npm run serve
 ```
 
-### Compiles and minifies for production
-```
-yarn build
-```
-
-### Lints and fixes files
-```
-yarn lint
-```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).

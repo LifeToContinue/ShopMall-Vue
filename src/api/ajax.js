@@ -1,6 +1,7 @@
 //1.引入axios模块
 import axios from 'axios'
 import NProress from 'nprogress'
+import { getUserTempId } from '@/utils/getUserTempId'
 
 //引入nproress样式
 import 'nprogress/nprogress.css' // 引入对应的样式
@@ -17,6 +18,7 @@ const ajax = axios.create({
 ajax.interceptors.request.use(config => {
     //设置进度条的开始
     NProress.start()
+    config.headers.userTempId = getUserTempId()
     return config  //返回配置项 这个config里面包含请求的一些配置信息: url method
 })
 

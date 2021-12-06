@@ -2,7 +2,8 @@ import Home from '../views/Home'
 import Login from '../views/Login'
 import Register from '../views/Register'
 import Search from '../views/Search'
-import AddCart from '../views/AddCart'
+import AddCartSuccess from '../views/AddCartSuccess'
+import ShopCart from '../views/ShopCart'
 import Trade from '../views/Trade'
 import MyOrder from '../views/MyOrder'
 import Pay from '../views/Pay'
@@ -44,9 +45,14 @@ export default [
       }
     },
     {
-      name:'addcart',
-      path:'/addcart',
-      component:AddCart
+      name:'addCartSuccess',
+      path:'/addCartSuccess',
+      component:AddCartSuccess
+    },
+    {
+      name:'shopCart',
+      path:'/shopCart',
+      component:ShopCart
     },
     {
       name:'trade',
@@ -76,7 +82,8 @@ export default [
     {
       name:'detail',
       path:'/detail/:id',
-      component:Detail
+      component:Detail,
+      props:true //props+params
     },
     {
       path:'/',

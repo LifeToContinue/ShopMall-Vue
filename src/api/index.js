@@ -22,3 +22,15 @@ export const reqFloorsListData = () => mockAjax.get('/floor')
 
 // 发送请求 获取搜索数据 这个不是List 因为不是数组 是一个对象
 export const reqSearchInfoData = (searchParams) => ajax.post('/api/list',searchParams)
+
+//6.获取商品详情数据
+export const reqGoodDetailInfoData=(id)=>ajax.get('/api/item/'+id)
+
+//7.
+export const reqAddOrUpdateCart =(skuId,skuNum)=>ajax.post(`/api/cart/addToCart/${skuId}/${skuNum}`)
+
+//8.
+export const reqShopCartListData = ()=> ajax.get('/api/cart/cartList') 
+
+// 9. 更新购物车中数据的选中状态
+export const reqChangeShopCartInfoState = (skuID,isChecked)=>ajax.get(`/api/cart/checkCart/${skuID}/${isChecked}`)
