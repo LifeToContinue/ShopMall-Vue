@@ -1,7 +1,5 @@
 # shopmall
 
-##尚品汇前台项目
-
 ## Project setup
 ```
 yarn install
