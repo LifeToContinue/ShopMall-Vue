@@ -26,11 +26,17 @@ export const reqSearchInfoData = (searchParams) => ajax.post('/api/list',searchP
 //6.获取商品详情数据
 export const reqGoodDetailInfoData=(id)=>ajax.get('/api/item/'+id)
 
-//7.
+// 7. 添加选中的商品到购物车成功页面
 export const reqAddOrUpdateCart =(skuId,skuNum)=>ajax.post(`/api/cart/addToCart/${skuId}/${skuNum}`)
 
-//8.
+// 8. 获取服务器中的之前添加到购物车中的数据
 export const reqShopCartListData = ()=> ajax.get('/api/cart/cartList') 
 
 // 9. 更新购物车中数据的选中状态
 export const reqChangeShopCartInfoState = (skuID,isChecked)=>ajax.get(`/api/cart/checkCart/${skuID}/${isChecked}`)
+
+// 10. 删除一件购物车的商品
+export const reqDelOneShopCartInfo=(skuId)=>ajax.delete(`/api/cart/deleteCart/${skuId}`)
+
+// 11. 获取验证码的请求
+export const reqCode = (phone) => ajax.get(`/api/user/passport/sendCode/${phone}`)

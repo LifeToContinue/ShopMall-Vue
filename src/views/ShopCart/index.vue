@@ -48,16 +48,15 @@
             <span class="sum">{{ cartInfo.skuPrice * cartInfo.skuNum }}</span>
           </li>
           <li class="cart-list-con7">
-            <a href="#none" class="sindelet">删除</a>
+            <a href="#none" class="sindelet" @click="showDialogByDelOneCarInfo(cartInfo.skuId)">删除</a>
             <br />
-            <a href="#none">移到收藏</a>
           </li>
         </ul>
       </div>
     </div>
     <div class="cart-tool">
       <div class="select-all">
-        <input class="chooseAll" type="checkbox" />
+        <input class="chooseAll" type="checkbox" v-model="checkAll"/>
         <span>全选</span>
       </div>
       <div class="option">
@@ -76,11 +75,27 @@
         </div>
       </div>
     </div>
+    <!-- <Dialog :visible="visible" @update:visible="close"> -->
+    <!-- <Dialog :visible="visible" @update:visible="visible=$event"> -->
+    <Dialog :visible.sync="visible" >
+      <template v-slot:header>
+        <span>提示</span>
+       
+      </template>
+      <template>
+        你真的要删除这条数据吗？
+      </template>
+      <template #footer>
+        <button class="btn" @click="visible=false">取消</button>
+        <button class="btn primary" @click="delOneShopCartInfo">确定</button>
+      </template>
+    </Dialog>
   </div>
 </template>
 
 <script>
-import { reqShopCartListData, reqChangeShopCartInfoState } from "@/api";
+import { reqShopCartListData, reqChangeShopCartInfoState,reqDelOneShopCartInfo } from "@/api";
+import Dialog from '@/components/Dialog'
 export default {
   name: "ShopCart",
   async mounted() {
@@ -96,6 +111,8 @@ export default {
   data() {
     return {
       cartInfoList: [],
+      visible:false,
+      skuId:''
     };
   },
   methods: {
@@ -113,7 +130,43 @@ export default {
       console.log(result.message);
     }
     },
+    /* close(val){
+      this.visible=val
+    } */
+    showDialogByDelOneCarInfo(skuId){
+      this.skuId=skuId
+      this.visible=true
+    },
+    async delOneShopCartInfo(){
+      const result=await reqDelOneShopCartInfo(this.skuId)
+      if(result.code===200){
+        this.visible=false
+        this.cartInfoList=this.cartInfoList.filter(cartInfo=>cartInfo.skuId!==this.skuId)
+      }
+      else{
+        console.log(result.message);
+      }
+    }
   },
+  computed:{
+    checkAll:{
+      get(){
+        return this.cartInfoList.every(cartInfo=>cartInfo.isChecked===1)
+      },
+      set(val){
+        this.cartInfoList.forEach(cartInfo=>{
+          let isChecked=val?1:0
+          cartInfo.isChecked=isChecked
+
+          this.checkCartInfoState({skuId:cartInfo.skuId,isChecked:1-isChecked})
+        })
+      },
+
+    }
+  },
+  components:{
+    Dialog
+  }
 };
 </script>
 
