@@ -2,6 +2,7 @@
 import axios from 'axios'
 import NProress from 'nprogress'
 import { getUserTempId } from '@/utils/getUserTempId'
+import store from '@/store'
 
 //引入nproress样式
 import 'nprogress/nprogress.css' // 引入对应的样式
@@ -19,6 +20,12 @@ ajax.interceptors.request.use(config => {
     //设置进度条的开始
     NProress.start()
     config.headers.userTempId = getUserTempId()
+
+    const token=store.state.user.userInfo.token
+    //判断一下，如果没有token则要重新赋值一个token
+    if(token){
+        config.headers.token=token
+    }
     return config  //返回配置项 这个config里面包含请求的一些配置信息: url method
 })
 

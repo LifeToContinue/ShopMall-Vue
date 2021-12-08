@@ -5,10 +5,14 @@
       <div class="container">
         <div class="loginList">
           <p>尚品汇欢迎您！</p>
-          <p>
+          <p v-if="userInfo.name">
+            <span>{{userInfo.name}}</span>&nbsp;&nbsp;
+            <button @click="logout">退出</button>
+          </p>
+          <p v-else>
             <span>请</span>
-            <router-link to="login">登录</router-link>
-            <router-link to="register" class="register">免费注册</router-link>
+            <router-link to="/login">登录</router-link>
+            <router-link to="/register" class="register">免费注册</router-link>
           </p>
         </div>
         <div class="typeList">
@@ -52,12 +56,16 @@
 </template>
 
 <script>
+import { mapState } from 'vuex';
 export default {
   name: "Header",
   data() {
     return {
       keyword: "",
     };
+  },
+  computed:{
+    ...mapState('user',['userInfo'])
   },
   methods: {
     btnSearch() {
@@ -73,6 +81,12 @@ export default {
         },
       });
     },
+
+    //用户登出
+    async logout(){
+      //登出的时候，要删除vuex和本地存储中的token  所以要dispatch
+      await this.$store.dispatch('user/UserLogout')
+    }
   },
   mounted() {
     //给全局事件总线注册一个时间

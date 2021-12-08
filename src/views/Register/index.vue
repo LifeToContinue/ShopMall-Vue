@@ -91,10 +91,11 @@
             <span>同意协议并注册《尚品汇用户协议》</span>
             <span class="error-msg">{{ errors[0] }}</span>
           </div>
+          </ValidationProvider>
           <div class="btn">
             <button>完成注册</button>
           </div>
-        </ValidationProvider>
+        
       </form>
     </ValidationObserver>
   </div>
@@ -104,7 +105,7 @@
 import { ValidationObserver, ValidationProvider, extend } from "vee-validate";
 import { required } from "vee-validate/dist/rules";
 import { phoneNumberReg, passwordReg, codeReg } from "@/utils/reg.js";
-import { reqCode } from "@/api";
+import { reqCode,reqRegister } from "@/api";
 // 1. 校验手机号输入不能为空
 extend("phoneRequired", {
   ...required,
@@ -172,13 +173,21 @@ export default {
     ValidationProvider,
   },
   methods: {
-    onSubmit() {
+    async onSubmit() {
       //在这个位置  去发请求注册账号
+      const {phone,password,code}=this.user
+      const result =await reqRegister({phone,password,code})
+      if(result.code===200){
+        //注册成功则要跳转到login页面
+        this.$router.push('/login')
+      }else{
+        console.log(result.message);
+      }
     },
     async getCode(event) {
       if (this.user.phone === "") {
         // alert("请输入手机号");
-        document.documentElement.style.disabled = true;
+        document.documentElement.style.disabled = true.user;
       } else {
         const result = await reqCode(this.user.phone);
         if (result.code === 200) {

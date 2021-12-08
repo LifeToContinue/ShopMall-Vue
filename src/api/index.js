@@ -30,7 +30,7 @@ export const reqGoodDetailInfoData=(id)=>ajax.get('/api/item/'+id)
 export const reqAddOrUpdateCart =(skuId,skuNum)=>ajax.post(`/api/cart/addToCart/${skuId}/${skuNum}`)
 
 // 8. 获取服务器中的之前添加到购物车中的数据
-export const reqShopCartListData = ()=> ajax.get('/api/cart/cartList') 
+export const reqShopCartListData = () => ajax.get('/api/cart/cartList')
 
 // 9. 更新购物车中数据的选中状态
 export const reqChangeShopCartInfoState = (skuID,isChecked)=>ajax.get(`/api/cart/checkCart/${skuID}/${isChecked}`)
@@ -40,3 +40,24 @@ export const reqDelOneShopCartInfo=(skuId)=>ajax.delete(`/api/cart/deleteCart/${
 
 // 11. 获取验证码的请求
 export const reqCode = (phone) => ajax.get(`/api/user/passport/sendCode/${phone}`)
+
+// 12. 批量删除购物车中选中的商品
+export const reqDelSelectedCartInfo = (cartInfo)=> ajax.delete('/api/cart/batchDeleteCart',cartInfo)
+
+//13.实现用户注册
+export const reqRegister=(user)=>ajax.post('/api/user/passport/register',user)
+
+//14.实现用户登录 可以获取服务器发送过来的token
+export const reqUsrLogin = (user)=> ajax.post('/api/user/passport/login',user)
+
+// 15. 用户登出
+export const reqUserLogout = () => ajax.get('/api/user/passport/logout')
+
+
+//16.结算
+
+/* ;(function () {
+    reqGoodDetailInfoData().then(result => {
+      console.log("11111",result);
+    })
+  }()) */

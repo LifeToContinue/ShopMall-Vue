@@ -34,21 +34,27 @@
             <span class="price">{{ cartInfo.skuPrice }}.00</span>
           </li>
           <li class="cart-list-con5">
-            <a href="javascript:void(0)" class="mins">-</a>
+            <a href="javascript:void(0)" class="mins" @click="changeSkuNum('decrement',cartInfo)">-</a>
             <input
               autocomplete="off"
               type="text"
               :value="cartInfo.skuNum"
               minnum="1"
               class="itxt"
+              @click="changeSkuNum('change',cartInfo,$event)"
             />
-            <a href="javascript:void(0)" class="plus">+</a>
+            <a href="javascript:void(0)" class="plus" @click="changeSkuNum('increment',cartInfo)">+</a>
           </li>
           <li class="cart-list-con6">
             <span class="sum">{{ cartInfo.skuPrice * cartInfo.skuNum }}</span>
           </li>
           <li class="cart-list-con7">
-            <a href="#none" class="sindelet" @click="showDialogByDelOneCarInfo(cartInfo.skuId)">删除</a>
+            <a
+              href="javascript:;"
+              class="sindelet"
+              @click="showDialogByDelOneCarInfo(cartInfo.skuId)"
+              >删除</a
+            >
             <br />
           </li>
         </ul>
@@ -56,19 +62,24 @@
     </div>
     <div class="cart-tool">
       <div class="select-all">
-        <input class="chooseAll" type="checkbox" v-model="checkAll"/>
+        <input class="chooseAll" type="checkbox" v-model="checkAll" />
         <span>全选</span>
       </div>
       <div class="option">
-        <a href="#none">删除选中的商品</a>
+        <a href="javascript:;" @click="showDialogByDelSelected"
+          >删除选中的商品</a
+        >
         <a href="#none">移到我的关注</a>
         <a href="#none">清除下柜商品</a>
       </div>
       <div class="money-box">
-        <div class="chosed">已选择 <span>0</span>件商品</div>
+        <div class="chosed">
+          已选择 <span>{{ selectdCount }}</span
+          >件商品
+        </div>
         <div class="sumprice">
           <em>总价（不含运费） ：</em>
-          <i class="summoney">0</i>
+          <i class="summoney">{{ selectedMoney }}</i>
         </div>
         <div class="sumbtn">
           <a class="sum-btn" href="###" target="_blank">结算</a>
@@ -77,32 +88,39 @@
     </div>
     <!-- <Dialog :visible="visible" @update:visible="close"> -->
     <!-- <Dialog :visible="visible" @update:visible="visible=$event"> -->
-    <Dialog :visible.sync="visible" >
+    <Dialog :visible.sync="visible">
       <template v-slot:header>
         <span>提示</span>
-       
       </template>
       <template>
-        你真的要删除这条数据吗？
+        你真的要删除{{ isDelOne ? "这条" : "选中的" }}商品吗？
       </template>
       <template #footer>
-        <button class="btn" @click="visible=false">取消</button>
-        <button class="btn primary" @click="delOneShopCartInfo">确定</button>
+        <button class="btn" @click="visible = false">取消</button>
+        <button class="btn primary" @click="delShopCartInfo">确定</button>
       </template>
     </Dialog>
   </div>
 </template>
 
 <script>
-import { reqShopCartListData, reqChangeShopCartInfoState,reqDelOneShopCartInfo } from "@/api";
-import Dialog from '@/components/Dialog'
+import {
+  reqShopCartListData,
+  reqChangeShopCartInfoState,
+  reqDelOneShopCartInfo,
+  reqDelSelectedCartInfo,
+  reqAddOrUpdateCart
+} from "@/api";
+import Dialog from "@/components/Dialog";
+import {reg} from '@/utils/reg'
 export default {
   name: "ShopCart",
   async mounted() {
     const result = await reqShopCartListData();
     // console.log("shopcart", result);
     if (result.code === 200) {
-      // console.log(result);
+      console.log(result);
+      
       this.cartInfoList = result.data[0].cartInfoList;
     } else {
       console.log(result.message);
@@ -111,62 +129,159 @@ export default {
   data() {
     return {
       cartInfoList: [],
-      visible:false,
-      skuId:''
+      visible: false,
+      skuId: "",
+      isDelOne: false, //做个标识  判断删除数量
+      skuIdList: [], //存储批量删除商品的id
+      leftCartInfoList: [], //剩余未删除的商品
     };
   },
   methods: {
+    //1.更改当前商品的选中状态
     async checkCartInfoState(cartInfo) {
       let isChecked = 1 - cartInfo.isChecked;
       const result = await reqChangeShopCartInfoState(
         cartInfo.skuId,
         isChecked
-      );      
+      );
       // 更新服务器数据成功后，重新更新页面
       // cartInfo.isChecked = isChecked;
       if (result.code === 200) {
-      cartInfo.isChecked = isChecked;
-    } else {
-      console.log(result.message);
-    }
+        cartInfo.isChecked = isChecked;
+      } else {
+        console.log(result.message);
+      }
     },
     /* close(val){
       this.visible=val
     } */
-    showDialogByDelOneCarInfo(skuId){
-      this.skuId=skuId
-      this.visible=true
+
+    //2.删除一条数据弹出对话框询问是否删除
+    showDialogByDelOneCarInfo(skuId) {
+      this.skuId = skuId;
+      this.visible = true;
+      this.isDelOne = true;
     },
-    async delOneShopCartInfo(){
-      const result=await reqDelOneShopCartInfo(this.skuId)
-      if(result.code===200){
-        this.visible=false
-        this.cartInfoList=this.cartInfoList.filter(cartInfo=>cartInfo.skuId!==this.skuId)
+
+    //3.删除一条数据
+    async delShopCartInfo() {
+      if (this.isDelOne) {
+        const result = await reqDelOneShopCartInfo(this.skuId);
+        if (result.code === 200) {
+          this.visible = false;
+          this.cartInfoList = this.cartInfoList.filter(
+            (cartInfo) => cartInfo.skuId !== this.skuId
+          );
+        } else {
+          console.log(result.message);
+        }
       }
-      else{
+
+      //批量删除多条数据
+      const result = await reqDelSelectedCartInfo({ data: this.skuIdList });
+      if (result.code === 200) {
+        this.visible = false;
+        this.cartInfoList = this.leftCartInfoList;
+      } else {
         console.log(result.message);
       }
+    },
+
+    //4.批量删除
+    showDialogByDelSelected() {
+      //1.弹出删除框
+      this.visible = true;
+      //2.要标识是批量删除
+      this.isDelOne = false;
+      //3.手机被选中的商品的skuId
+      this.cartInfoList.forEach((cartInfo) => {
+        if (cartInfo.isChecked) {
+          this.skuIdList.push(cartInfo.skuId);
+        } else {
+          //将没有被删除的商品保存
+          this.leftCartInfoList.push(cartInfo);
+        }
+      });
+    },
+
+    //5.更改购买商品的数量
+    async changeSkuNum(type,cartInfo,event){
+      const {skuId}=cartInfo
+      let num=0;
+
+      switch(type){ 
+        case 'increment':
+          cartInfo.skuNum++ //页面的数量
+          num++ //服务器的数量
+          if(cartInfo.skuNum>200){
+            cartInfo.skuNum=200
+            num=0
+          }
+          break;
+        case 'decrement':
+          cartInfo.skuNum--
+          num--
+          if(cartInfo.skuNum<1){
+            cartInfo.skuNum=1
+            num=0
+          }
+          break;
+        case 'change':{
+          let oldSkuNum =cartInfo.skuNum
+          let newSkuNum= event.target.value
+          if(reg.test(newSkuNum)){
+            cartInfo.skuNum=newSkuNum
+            if(newSkuNum>200) cartInfo.skuNum=oldSkuNum;
+            if(newSkuNum<1) cartInfo.skuNum=1;
+            num=cartInfo.skuNum-oldSkuNum
+          }else{
+            // cartInfo.skuNum=oldSkuNum
+            cartInfo.skuNum=1
+            num=0
+          }  
+          break;
+          }
+      }
+
+      //发送请求，更新服务器端已购买的数量
+      if(num==0) return;
+      const reslut=await reqAddOrUpdateCart(skuId,num)
+      
     }
   },
-  computed:{
-    checkAll:{
-      get(){
-        return this.cartInfoList.every(cartInfo=>cartInfo.isChecked===1)
+  computed: {
+    //全选
+    checkAll: {
+      get() {
+        return this.cartInfoList.every((cartInfo) => cartInfo.isChecked === 1);
       },
-      set(val){
-        this.cartInfoList.forEach(cartInfo=>{
-          let isChecked=val?1:0
-          cartInfo.isChecked=isChecked
+      set(val) {
+        this.cartInfoList.forEach((cartInfo) => {
+          let isChecked = val ? 1 : 0;
+          cartInfo.isChecked = isChecked;
 
-          this.checkCartInfoState({skuId:cartInfo.skuId,isChecked:1-isChecked})
-        })
+          this.checkCartInfoState({
+            skuId: cartInfo.skuId,
+            isChecked: 1 - isChecked,
+          });
+        });
       },
-
-    }
+    },
+    //已选商品数量
+    selectdCount() {
+      return this.cartInfoList.reduce((prev, current) => {
+        return prev + current.isChecked;
+      }, 0);
+    },
+    selectedMoney() {
+      return this.cartInfoList.reduce((p, c) => {
+        return p + c.skuPrice * c.skuNum * c.isChecked;
+      }, 0);
+    },
   },
-  components:{
-    Dialog
-  }
+  components: {
+    Dialog,
+  },
 };
 </script>
 
