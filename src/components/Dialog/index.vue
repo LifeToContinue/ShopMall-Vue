@@ -1,4 +1,5 @@
 <template>
+  <!-- self只触发自己身上的事件，不受其它影响 -->
   <div class="dialog" v-show="visible" @click.self="closeDialog">
     <div class="dialog-wrap">
       <div class="dialog-header">
@@ -18,22 +19,27 @@
 <script>
 export default {
   name: "Dialog",
+  // props:['visibile']
   props: {
+    // 完整写法
     visible: {
-      type: Boolean,
-      required: true, //必须传
+      type: Boolean, // 限定类型
+      required: true, // 必须传
     },
   },
   methods: {
     closeDialog() {
+      // this.$emit("update", false);
       this.$emit("update:visible", false);
     },
   },
   watch: {
     visible: {
-      immediate: true,
+      immediate: true, // 一开始立即就监视
       handler() {
         if (this.visible) {
+          // document.body 标签标签
+          // document.documentElement 表示html标签
           document.documentElement.style.overflow = "hidden";
         } else {
           document.documentElement.style.overflow = "auto";
@@ -44,7 +50,7 @@ export default {
 };
 </script>
 
-<style lang='less' scoped>
+<style lang="less" scoped>
 .dialog {
   position: fixed;
   left: 0;
@@ -55,14 +61,14 @@ export default {
 
   .dialog-wrap {
     width: 460px;
-    height: 200px;
+    height: 150px;
     position: absolute;
     background-color: #fff;
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
     padding: 12px 20px;
-    box-sizing: border-box;
+    box-sizing: border-box; // 内减模式
 
     .dialog-header {
       display: flex;
@@ -70,39 +76,34 @@ export default {
       span {
         font-size: 18px;
       }
-
       button {
         outline: none;
         border: none;
         cursor: pointer;
         font-size: 18px;
-        background-color: #fff;
       }
     }
 
     .dialog-body {
-      margin-top: 35px;
-      height: 36px;
+      margin-top: 26px;
       text-align: center;
-      font-size: 20px;
+      font-size: 18px;
     }
 
     .dialog-footer {
       position: absolute;
-      right: 22px;
+      right: 30px;
       bottom: 12px;
       .btn {
-        width: 70px;
-        height: 28px;
+        width: 46px;
+        height: 32px;
         margin-left: 10px;
         cursor: pointer;
         font-size: 14px;
         outline: none;
-        border: none;
-
         &.primary {
-          background-color: #63b5ff;
-          color: white;
+          background-color: rgb(102, 177, 255);
+          color: #fff;
         }
       }
     }

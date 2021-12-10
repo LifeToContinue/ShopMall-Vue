@@ -6,8 +6,8 @@
         <div class="loginList">
           <p>尚品汇欢迎您！</p>
           <p v-if="userInfo.name">
-            <span>{{userInfo.name}}</span>&nbsp;&nbsp;
-            <button @click="logout">退出</button>
+            <span>{{ userInfo.name }}</span
+            >&nbsp;&nbsp; <button @click="logout">退出</button>
           </p>
           <p v-else>
             <span>请</span>
@@ -16,14 +16,14 @@
           </p>
         </div>
         <div class="typeList">
-          <router-link to="###">我的订单</router-link>
+          <a href="###">我的订单</a>
           <router-link to="/shopCart">我的购物车</router-link>
-          <router-link to="###">我的尚品汇</router-link>
-          <router-link to="###">尚品汇会员</router-link>
-          <router-link to="###">企业采购</router-link>
-          <router-link to="###">关注尚品汇</router-link>
-          <router-link to="###">合作招商</router-link>
-          <router-link to="###">商家后台</router-link>
+          <a href="###">我的尚品汇</a>
+          <a href="###">尚品汇会员</a>
+          <a href="###">企业采购</a>
+          <a href="###">关注尚品汇</a>
+          <a href="###">合作招商</a>
+          <a href="###">商家后台</a>
         </div>
       </div>
     </div>
@@ -44,8 +44,8 @@
           />
           <button
             class="sui-btn btn-xlarge btn-danger"
-            type="button"
             @click="btnSearch"
+            type="button"
           >
             搜索
           </button>
@@ -56,7 +56,8 @@
 </template>
 
 <script>
-import { mapState } from 'vuex';
+import { mapState } from "vuex";
+
 export default {
   name: "Header",
   data() {
@@ -64,40 +65,74 @@ export default {
       keyword: "",
     };
   },
-  computed:{
-    ...mapState('user',['userInfo'])
+  computed: {
+    ...mapState("user", ["userInfo"]),
+  },
+  mounted() {
+    // 给全局事件总线注册一个事件
+    this.$bus.$on("remove-keyword", () => {
+      this.keyword = "";
+    });
+  },
+  beforeDetroy() {
+    // 在组件销毁之前，一定要先清除掉之前在事件总线上注册的事件
+    this.$bus.$off("remove-keyword");
   },
   methods: {
     btnSearch() {
+      // this.$router.push('/search',()=>{},()=>{})
       // this.$router.push('/search')
+      // 解决方法一  把路由版本回退到 3.1.0
+      // 解决方法二  自己设置回调
+      // 解决方法二  将错误统一处理 这样以后项目中再用到push/replace 都没有问题了
+
+      // 1.方案一: 可以使用location.search获取参数部分 ?key=value&key=value
+      // 2.路由获取参数
       // console.log(this.$route);
       let { query } = this.$route;
+      // let categoryName = this.$route.query.categoryName
+      // let category1Id = this.$route.query.category1Id
+      // let category2Id = this.$route.query.category2Id
+      // let category3Id = this.$route.query.category3Id
       this.$router.push({
-        name: "search", //路由名称
+        name: "search", // 路由名称
         query: {
-          //路由跳转时，如果参数没有值是undefined的时候，路由会自动过滤掉undefined的值
+          // 路由跳转时，如果参数没有值是undefined的时候,路由会自动过滤掉undefined的值
           ...query,
           keyword: this.keyword || undefined,
         },
       });
     },
+    // 用户登出
+    // async logout() {
+    //   const result = await reqUserLogout();
+    //   if (result.code === 200) {
+    //     // 本地的token要删除掉  vuex也要删除掉
+    //     localStorage.removeItem('userName')
+    //     localStorage.removeItem('token')
+    //   }else {
+    //     console.log(result.message);
+    //   }
+    // },
+    async logout() {
+      // 登出的时候，要删除vuex和本地存储中的token 所以要dispath
+      await this.$store.dispatch("user/UserLogout");
 
-    //用户登出
-    async logout(){
-      //登出的时候，要删除vuex和本地存储中的token  所以要dispatch
-      await this.$store.dispatch('user/UserLogout')
-    }
-  },
-  mounted() {
-    //给全局事件总线注册一个时间
-    this.$bus.$on("remove-keyword", () => {
-      this.keyword = ""
-    });
-  },
-  beforeDestroy() {
-    this.$bus.$off('remove-keyword')
+      // 应该跳转到登陆页面
+      this.$router.push("/login");
+    },
   },
 };
+
+/**
+ * 1. 单击搜索按钮拼接参数
+ *     1. 当从三级导航链接跳转到了sarch页面之后，地址栏中会带有之前三级链接数据
+ *     2. 如果我们单击Header中的seach按钮，想把搜索的关键词也拼接在之前地址栏参数的后面
+ *     3. 此时我们可以使用this.$route.query获取之前的参数数据
+ *     4. 将之前的数据和我们当前的keyword一块拼接在query对象中
+ *
+ *
+ */
 </script>
 
 <style lang="less" scoped>

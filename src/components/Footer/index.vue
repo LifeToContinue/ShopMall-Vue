@@ -1,7 +1,7 @@
 <template>
   <div class="footer">
     <div class="footer-container">
-      <div class="footerList"  v-show="!$route.meta.isHiddenFooter">
+      <div class="footerList" v-show="!$route.meta.isHiddenFooter">
         <div class="footerItem">
           <h4>购物指南</h4>
           <ul class="footerItemCon">

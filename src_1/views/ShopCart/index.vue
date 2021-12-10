@@ -17,6 +17,7 @@
           :key="cartInfo.id"
         >
           <li class="cart-list-con1">
+            <!-- !!是将其它数据类型隐式转换成boolean类型数据的一种方式 -->
             <input
               type="checkbox"
               name="chk_list"
@@ -34,16 +35,26 @@
             <span class="price">{{ cartInfo.skuPrice }}.00</span>
           </li>
           <li class="cart-list-con5">
-            <a href="javascript:void(0)" class="mins" @click="changeSkuNum('decrement',cartInfo)">-</a>
+            <a
+              href="javascript:void(0)"
+              class="mins"
+              @click="changeSkuNum('decrement', cartInfo)"
+              >-</a
+            >
             <input
               autocomplete="off"
               type="text"
               :value="cartInfo.skuNum"
               minnum="1"
               class="itxt"
-              @click="changeSkuNum('change',cartInfo,$event)"
+              @change="changeSkuNum('change', cartInfo, $event)"
             />
-            <a href="javascript:void(0)" class="plus" @click="changeSkuNum('increment',cartInfo)">+</a>
+            <a
+              href="javascript:void(0)"
+              class="plus"
+              @click="changeSkuNum('increment', cartInfo)"
+              >+</a
+            >
           </li>
           <li class="cart-list-con6">
             <span class="sum">{{ cartInfo.skuPrice * cartInfo.skuNum }}</span>
@@ -52,10 +63,11 @@
             <a
               href="javascript:;"
               class="sindelet"
-              @click="showDialogByDelOneCarInfo(cartInfo.skuId)"
+              @click="showDialogByDelOneCartInfo(cartInfo.skuId)"
               >删除</a
             >
             <br />
+            <!-- <a href="#none">移到收藏</a> -->
           </li>
         </ul>
       </div>
@@ -74,7 +86,7 @@
       </div>
       <div class="money-box">
         <div class="chosed">
-          已选择 <span>{{ selectdCount }}</span
+          已选择 <span>{{ selectedCount }}</span
           >件商品
         </div>
         <div class="sumprice">
@@ -82,21 +94,26 @@
           <i class="summoney">{{ selectedMoney }}</i>
         </div>
         <div class="sumbtn">
-          <a class="sum-btn" href="###" target="_blank">结算</a>
+          <a class="sum-btn" href="javascript:;" @click="$router.push('/trade')"
+            >结算</a
+          >
         </div>
       </div>
     </div>
-    <!-- <Dialog :visible="visible" @update:visible="close"> -->
-    <!-- <Dialog :visible="visible" @update:visible="visible=$event"> -->
+
+    <!-- 弹出框 -->
+    <!-- <Dialog :visible="visible" @update:visible="closeAAA"> -->
+    <!-- <Dialog :visible="visible" @update:visible="visible = $event"> -->
     <Dialog :visible.sync="visible">
       <template v-slot:header>
         <span>提示</span>
       </template>
       <template>
-        你真的要删除{{ isDelOne ? "这条" : "选中的" }}商品吗？
+        <p>你真的要删除{{ isDelOne ? "这1条" : "这些选中的" }}商品吗？</p>
       </template>
       <template #footer>
         <button class="btn" @click="visible = false">取消</button>
+        <!-- <button class="btn primary" @click="delOneShopCartInfo">确定</button> -->
         <button class="btn primary" @click="delShopCartInfo">确定</button>
       </template>
     </Dialog>
@@ -109,157 +126,184 @@ import {
   reqChangeShopCartInfoState,
   reqDelOneShopCartInfo,
   reqDelSelectedCartInfo,
-  reqAddOrUpdateCart
+  reqAddOrUpdateCart,
 } from "@/api";
 import Dialog from "@/components/Dialog";
-import {reg} from '@/utils/reg'
+import { reg } from "@/utils/reg";
+// import _ from 'lodash' // 可以直接这样来用
+
+// 用下面的方式可以实现按需加载
+import debounce from "lodash/debounce";
+// import throttle from "lodash/throttle";
+
 export default {
   name: "ShopCart",
-  async mounted() {
-    const result = await reqShopCartListData();
-    // console.log("shopcart", result);
-    if (result.code === 200) {
-      console.log(result);
-      
-      this.cartInfoList = result.data[0].cartInfoList;
-    } else {
-      console.log(result.message);
-    }
-  },
   data() {
     return {
       cartInfoList: [],
       visible: false,
       skuId: "",
-      isDelOne: false, //做个标识  判断删除数量
-      skuIdList: [], //存储批量删除商品的id
-      leftCartInfoList: [], //剩余未删除的商品
+      isDelOne: false, // 做个标识 判断一下是删除一条商品还是批量删除多条
+      skuIdList: [], // // 存储批量删除被选中的商品时的skuId
+      leftCartInfoList: [], // 存储的是未被删除的商品
     };
   },
+  components: { Dialog },
+  async mounted() {
+    // console.log(23);
+    const result = await reqShopCartListData();
+    if (result.code === 200) {
+      console.log(result.data);
+      // 为了实现响应式，所以在当前的data中先添加一个cartInfoList
+      this.cartInfoList = result.data[0].cartInfoList;
+    } else {
+      console.log(result.message);
+    }
+  },
   methods: {
-    //1.更改当前商品的选中状态
+    // 1. 更改当前商品的选中状态
     async checkCartInfoState(cartInfo) {
-      let isChecked = 1 - cartInfo.isChecked;
+      // let isChecked = cartInfo.isChecked == 1 ? 0 : 1;
+
+      let isChecked = 1 - cartInfo.isChecked; // 传递的只有两个值 要么是1 要么是0
       const result = await reqChangeShopCartInfoState(
         cartInfo.skuId,
         isChecked
       );
-      // 更新服务器数据成功后，重新更新页面
-      // cartInfo.isChecked = isChecked;
+
       if (result.code === 200) {
+        // 如果成功了的话，页面
         cartInfo.isChecked = isChecked;
       } else {
         console.log(result.message);
       }
     },
-    /* close(val){
-      this.visible=val
-    } */
-
-    //2.删除一条数据弹出对话框询问是否删除
-    showDialogByDelOneCarInfo(skuId) {
+    // closeAAA(val){
+    //   this.visible = val
+    // }
+    // 2. 删除一条商品数据时弹出对话框 询问一下是否真的删除
+    showDialogByDelOneCartInfo(skuId) {
+      console.log(skuId);
       this.skuId = skuId;
-      this.visible = true;
-      this.isDelOne = true;
+      this.visible = true; // 弹出对话框
+      this.isDelOne = true; // 确定是删除一条 当单击弹出来的对话框中的确定按钮的时候，要做个判断
     },
-
-    //3.删除一条数据
+    // 3. 单击弹出框的确定按钮 删除一条商品数据
+    // async delOneShopCartInfo(){
     async delShopCartInfo() {
       if (this.isDelOne) {
+        // 3.1 如果这个条件成立 则证明删除一条数据
         const result = await reqDelOneShopCartInfo(this.skuId);
         if (result.code === 200) {
-          this.visible = false;
+          this.visible = false; // 隐藏对话框
+          // 正常情况下，当删除购物车中的商品数据成功的时候，需要做两件事
+          // 1. 隐藏弹出来的对话框 2. 页面应该要显示剩下的商品数(刷新 一般要重新刷新页面重发请求)
           this.cartInfoList = this.cartInfoList.filter(
             (cartInfo) => cartInfo.skuId !== this.skuId
           );
         } else {
           console.log(result.message);
         }
+        return; // 不要往下执行了
       }
 
-      //批量删除多条数据
+      // 3.2 批量删除多条数据
       const result = await reqDelSelectedCartInfo({ data: this.skuIdList });
       if (result.code === 200) {
+        // 对话框要隐藏
         this.visible = false;
+        // 当前页面应该要渲染剩下的商品 正常情况下应该要重新渲染页面 重新发送ajax请求，获取剩下的数据渲染在页面上，但是为了节省服务器资源 我们可以节省一次请求
+
         this.cartInfoList = this.leftCartInfoList;
       } else {
         console.log(result.message);
       }
     },
-
-    //4.批量删除
+    // 4. 单击批量删除商品时弹出来的对话框
     showDialogByDelSelected() {
-      //1.弹出删除框
+      // 这个函数中要执行的业务逻辑分析
+      // 1. 单击批量删除商品按钮时，对话框要弹出来
       this.visible = true;
-      //2.要标识是批量删除
+      // 2. 要标识是批量删除
       this.isDelOne = false;
-      //3.手机被选中的商品的skuId
+      // 3. 收集被选中的商品的skuId
       this.cartInfoList.forEach((cartInfo) => {
         if (cartInfo.isChecked) {
           this.skuIdList.push(cartInfo.skuId);
         } else {
-          //将没有被删除的商品保存
+          // 将没有被删除的商品添加到leftCartInfoList数组中
           this.leftCartInfoList.push(cartInfo);
         }
       });
     },
+    // 5. 更改购买商品的数量
+    changeSkuNum: debounce(async function (type, cartInfo, event) {
+      // 分支 if-else if... switch-case
+      const { skuId } = cartInfo;
+      let num = 0;
+      switch (type) {
+        case "increment": {
+          cartInfo.skuNum++; // 这个是页面显示的数量
+          num++; // 这个才是发给服务器的更改数量
+          if (cartInfo.skuNum > 200) {
+            cartInfo.skuNum = 200; // 已经最大数了
+            num = 0; // 将num置为0
+          }
+          break;
+        }
+        case "decrement": {
+          cartInfo.skuNum--;
+          num--;
+          if (cartInfo.skuNum < 1) {
+            cartInfo.skuNum = 1;
+            num = 0; // 将num置为0
+          }
+          break;
+        }
+        case "change": {
+          // event.target 表示当前事件源 文本框中值的获取要使用value
+          let oldSkuNum = cartInfo.skuNum;
+          let newSkuNum = event.target.value; // 变量本地化 不用每次重新获取 需要先存储到变量中
+          console.log("oldNum,newNum", oldSkuNum, newSkuNum);
+          if (reg.test(newSkuNum)) {
+            cartInfo.skuNum = newSkuNum;
+            if (newSkuNum > 200) cartInfo.skuNum = oldSkuNum;
+            if (newSkuNum < 1) cartInfo.skuNum = 1;
+            num = cartInfo.skuNum - oldSkuNum;
+            console.log("change", num);
+          } else {
+            // cartInfo.skuNum = oldSkuNum // 如果用户输入的是非法值 则直接转为最小数
+            console.log("oldNum,newNum ---", oldSkuNum, newSkuNum);
+            // cartInfo.skuNum = oldSkuNum // 如果用户输入的是非法值 则直接转为最小数
+            cartInfo.skuNum = 1; // 如果用户输入的是非法值 则直接转为最小值1
+            num = 0; // 给一个0
+          }
 
-    //5.更改购买商品的数量
-    async changeSkuNum(type,cartInfo,event){
-      const {skuId}=cartInfo
-      let num=0;
-
-      switch(type){ 
-        case 'increment':
-          cartInfo.skuNum++ //页面的数量
-          num++ //服务器的数量
-          if(cartInfo.skuNum>200){
-            cartInfo.skuNum=200
-            num=0
-          }
           break;
-        case 'decrement':
-          cartInfo.skuNum--
-          num--
-          if(cartInfo.skuNum<1){
-            cartInfo.skuNum=1
-            num=0
-          }
-          break;
-        case 'change':{
-          let oldSkuNum =cartInfo.skuNum
-          let newSkuNum= event.target.value
-          if(reg.test(newSkuNum)){
-            cartInfo.skuNum=newSkuNum
-            if(newSkuNum>200) cartInfo.skuNum=oldSkuNum;
-            if(newSkuNum<1) cartInfo.skuNum=1;
-            num=cartInfo.skuNum-oldSkuNum
-          }else{
-            // cartInfo.skuNum=oldSkuNum
-            cartInfo.skuNum=1
-            num=0
-          }  
-          break;
-          }
+        }
       }
 
-      //发送请求，更新服务器端已购买的数量
-      if(num==0) return;
-      const reslut=await reqAddOrUpdateCart(skuId,num)
-      
-    }
+      // 去发送请求 更新服务器端的已购买商品的数量 skuId  skuNum(是需要变动的数量，不是当前显示出来的数量)
+      // if (num == 0 ) return; // 不要往下执行了 不要发送请求了
+      if (!num) return; // 不要往下执行了 不要发送请求了
+      const result = await reqAddOrUpdateCart(skuId, num);
+    }, 300),
   },
   computed: {
-    //全选
+    // 1. 全选按钮
     checkAll: {
       get() {
         return this.cartInfoList.every((cartInfo) => cartInfo.isChecked === 1);
       },
       set(val) {
         this.cartInfoList.forEach((cartInfo) => {
+          // 先判断一下当前按钮的状态是什么 此总按钮是选中状态的话则val是true
+          // 如果不选中则是false
+          // 但是我们发送给服务器的这个isChecked值是字符串形式的数字不是boolean类型
           let isChecked = val ? 1 : 0;
           cartInfo.isChecked = isChecked;
 
+          // 一条条更新    更新的时候 后面的isChecked的值一定要先取反一下，因为用到了上面的函数中也有取反，这样才能够保证服务器是存储的真正的状态
           this.checkCartInfoState({
             skuId: cartInfo.skuId,
             isChecked: 1 - isChecked,
@@ -267,22 +311,35 @@ export default {
         });
       },
     },
-    //已选商品数量
-    selectdCount() {
-      return this.cartInfoList.reduce((prev, current) => {
-        return prev + current.isChecked;
-      }, 0);
+    // 2. 已经选择的商品数量
+    selectedCount() {
+      // 由于当前商品的选中与否，刚好是isChecked的值来决定的而这个值是number类型1  没选中则是0
+      return this.cartInfoList.reduce(
+        (prev, current) => prev + current.isChecked,
+        0
+      );
     },
     selectedMoney() {
-      return this.cartInfoList.reduce((p, c) => {
-        return p + c.skuPrice * c.skuNum * c.isChecked;
-      }, 0);
+      return this.cartInfoList.reduce(
+        (p, c) => p + c.skuPrice * c.skuNum * c.isChecked,
+        0
+      );
     },
   },
-  components: {
-    Dialog,
-  },
 };
+
+/**
+ * 更改商品数量的思路分析
+ * 1. 如果是第一次往购物车中添加商品 携带的参数中skuId skuNum 此时的skuNum就是当前购买的数量
+ * 2. 如果现在单击+号 意味着增加已经购买商品的数量 是在服务器已有商品数量的基础上来增加
+ * 3. 同理 如果单击的是-号 则是在服务器已有商品数量的基础上减skuNum
+ * 4. 也就是说如果服务器端已经有了某种商品，此时的+或1 发送给服务器的skuNum是带正负的
+ * 5. 服务器端会根据数据自动进行计算
+ * 6. 如果是直接修改数量的话,则最终显示的就是当前修改的数量，但是发送给服务器的skuNum应该是用当前显示的最新数量值减去之前的数量值
+ *
+ *
+ *
+ */
 </script>
 
 <style lang="less" scoped>

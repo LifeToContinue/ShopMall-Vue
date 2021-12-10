@@ -33,9 +33,6 @@ const getters = {
   },
   spuSaleAttrList(state) {
     return state.goodDetailInfo.spuSaleAttrList || {}
-  },
-  price(state){
-    return state.goodDetailInfo.price || {}
   }
 }
 
