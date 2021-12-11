@@ -12,8 +12,7 @@
             >
               <h3>
                 <a
-                  data-level="1"
-                  :data-id="c1.categoryId"
+                  :data-id1="c1.categoryId"
                   :data-name="c1.categoryName"
                   >{{ c1.categoryName }}</a
                 >
@@ -27,8 +26,7 @@
                   >
                     <dt>
                       <a
-                        data-level="2"
-                        :data-id="c2.categoryId"
+                        :data-id2="c2.categoryId"
                         :data-name="c2.categoryName"
                         >{{ c2.categoryName }}</a
                       >
@@ -36,8 +34,7 @@
                     <dd>
                       <em v-for="c3 in c2.categoryChild" :key="c3.categoryId">
                         <a
-                          data-level="3"
-                          :data-id="c3.categoryId"
+                          :data-id3="c3.categoryId"
                           :data-name="c3.categoryName"
                           >{{ c3.categoryName }}</a
                         >
@@ -82,7 +79,39 @@ export default {
     ...mapState("home", ["categoryList"]), // 就相当于将vuex中的数据映射到当前组件上了
   },
   methods: {
-    btnSearch(event) {
+    btnSearch(event){
+      //点击之后，获取到点击id元素
+      let target=event.target
+      //从点击的元素身上盲区，data-开头自定义属性组成的对象
+      let dataset=target.dataset
+      //盲解
+      let{id1,id2,id3,name}=dataset
+
+      if(name){
+        //代表点的是a标签
+        let location={
+          name:'search',
+        }
+        let query={
+          categoryName:name
+        }
+        if(id1){
+          query.category1Id=id1
+        }else if(id2){
+          query.category2Id=id2
+        }else{
+          query.category3Id=id3
+        }
+
+        location.query=query
+
+        //判断之前有没有params,合并参数
+        location.params=this.$route.params
+        this.$router.push(location)
+      }
+    },
+
+    /* btnSearch(event) {
       // 只要事件被触发，就会有一个默认的事件对象，用的时候就写上，不用就不写
       // console.log(event);
       // console.log(event.target);
@@ -109,7 +138,8 @@ export default {
           categoryName,
         },
       });
-    },
+    }, */
+    
     // 鼠标离开时的操作
     handlerLeave() {
       // search组件中 如果鼠标离开了父级标签，则让isShowNav=false

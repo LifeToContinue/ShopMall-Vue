@@ -79,7 +79,21 @@ export default {
     this.$bus.$off("remove-keyword");
   },
   methods: {
-    btnSearch() {
+    btnSearch(){
+      let location={
+        name:'search',
+        params:{
+          keyword:this.keyword || undefined
+        }
+      }
+
+      //判断之前有没有query,合并参数
+      location.query=this.$route.query
+
+
+      this.$router.push(location)
+    },
+    /* btnSearch() {
       // this.$router.push('/search',()=>{},()=>{})
       // this.$router.push('/search')
       // 解决方法一  把路由版本回退到 3.1.0
@@ -102,7 +116,7 @@ export default {
           keyword: this.keyword || undefined,
         },
       });
-    },
+    }, */
     // 用户登出
     // async logout() {
     //   const result = await reqUserLogout();

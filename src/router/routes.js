@@ -49,12 +49,28 @@ export default [
   {
     name: 'shopcart',
     path: '/shopCart',
-    component:ShopCart
+    component:ShopCart,
+
+    
   },
   {
     name:'search', // 路由名称
-    path: '/search',
-    component: Search
+    path: '/search/:keyword?',
+    component: Search,
+    /* 
+      props配置是简化操作传递过去的路由参数
+      -布尔：
+        props:true    
+        会把路由传递的params参数映射为组件内部的属性
+      -对象
+        proms:{username:'赵丽颖'} 
+        会把对象内部的属性映射为组件内部的属性，一般用来传递一个额外的参数
+      -函数
+        props(){
+          return{keyword:route.params.keyword,category1Id:route.query.category1Id}
+        }
+        可以手动的去映射params或者query参数
+    */
   },
   {
     // 订单中心 其实就是根据地址发货的页面

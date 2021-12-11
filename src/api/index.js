@@ -66,5 +66,33 @@ export const reqTradeInfoListData = () => ajax.get('/order/auth/trade')
 
 
 
+//无论什么样的暴露方式，出文件的时候都是对象，只是形成对象的方式不同
+/* 
+  1.默认暴露
+    export default 100  ===>  {default:100}
+
+   引入的全写
+    import {default as xxx} from './xxx'  ====> import xxx from './xxx'
+
+  2.分别暴露
+    export let a =100
+    export let b={n:1}     ===>　　{ a,b }
+
+  引入
+    import {a,b} from './xxx'
+
+  3.统一暴露
+    const a =100
+    const b={m:2}　　　　===>export　{a,b}
+
+
+
+  import * as API from '@/api'
+
+    
+
+
+
+*/
 
 

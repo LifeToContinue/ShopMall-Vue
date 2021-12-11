@@ -117,6 +117,12 @@ import SearchSelector from "./SearchSelector";
 import { mapGetters } from "vuex";
 export default {
   name: "Search",
+  //布尔：
+  // props:['keyword'],
+  //对象：
+  // props:['keyword'，'username'],
+  //函数
+  // props:['keyword'，'username','category1Id'],
   data() {
     return {
       searchParams: {
@@ -310,7 +316,7 @@ export default {
         });
 
         // 比较好的办法  使用后面的参数将前面的数据给覆盖掉(合并掉)
-        Object.assign(this.searchParams, this.$route.query);
+        Object.assign(this.searchParams, this.$route.query,this.$route.params);
 
         this.$store.dispatch("search/getSearchInfoData", this.searchParams);
       },

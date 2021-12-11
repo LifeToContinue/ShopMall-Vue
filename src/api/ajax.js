@@ -12,7 +12,7 @@ import store from '@/store'
 // 2. 创建实例对象 然后统一配置之后再去发送请求
 // 只要使用ajax这个实例对象发送请求,会先走这里面的配置项
 const ajax = axios.create({
-  baseURL: '/api',  // 配置统一的服务器地址
+  baseURL: '/api',  // 配置统一的公共的请求路径或者公共的转发标志
   timeout: 5000,
 });
 
@@ -38,14 +38,14 @@ ajax.interceptors.request.use(config => {
 })
 
 // 4. 设置响应拦截器 
-ajax.interceptors.response.use(result => {
+ajax.interceptors.response.use(response => {
   // 设置进度条的结束 
   NProgress.done()
-  return result.data
+  return response.data
 }, err => {
   // return err.message  // 返回失败对象中的错误信息
   // 即使是错误信息,也应该是一个Promise对象 如果是错误信息字符串,默认也会当成成功的操作
-  return Promise.reject(new Error(err.message))
+  return Promise.reject(err)
 })
 
 // 5. 导出对象

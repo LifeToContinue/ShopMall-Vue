@@ -9,6 +9,8 @@ import 'swiper/css/swiper.min.css'
 
 import './mock/mockServer' // 引入进来之后开启服务器  相当于已经开启服务器了
 
+import * as API from '@/api'
+
 
 Vue.config.productionTip = false // 关闭生产提示
 
@@ -23,6 +25,7 @@ const vm = new Vue({
   store, // 和vm对象进行关联
   beforeCreate() {  // 注册全局事件总线
     Vue.prototype.$bus = this
+    Vue.prototype.$API = API
   },
   render: h => h(App),
 }).$mount('#app')

@@ -338,7 +338,7 @@
 
 <script>
 // import { reg } from "../../utils/reg";
-import {reqAddOrUpdateCart} from '@/api'
+// import {reqAddOrUpdateCart} from '@/api'
  import {mapGetters} from 'vuex'
 import {skuNumReg} from '@/utils/reg'
 import ImageList from "./ImageList/ImageList";
@@ -392,10 +392,27 @@ export default {
     async addSku2Cart(){
       // Vuex里面，此时暂时不需要存储数据，因此这个请求可以直接在这里去发
       // 不用再到Vuex中再去写三连环
-      const result = await reqAddOrUpdateCart(this.id,this.count)
+      const result = await this.$API.reqAddOrUpdateCart(this.id,this.count)
       // 判断是否成功
       if(result.code === 200){
         // 说明往服务器添加数据是成功的
+
+        //跳转之前，我们要把添加购物车成功页面所需要展示的数据给带过去
+        //携带数据：携带简单数据和复杂数据
+        // this.$router.push('/addcartsuccess?skuNum='+this.count)
+        // this.$router.push(`/addcartsuccess?skuNum=${this.count}`)
+        //简单数据用路由传参
+        //复杂数据用存储方案 sessionStroage\localStorage
+        //localStorage和sessionStorage存储数据存储键值对，值都会自动转化为字符串
+        sessionStorage.setItem('skuInfo_key', JSON.stringify(this.skuInfo))
+
+
+
+        //如果写对象，不写name
+        //只传query参数，使用path和query配合是可以的
+        //如果一旦传递了params参数，那么path是不能和params配合的
+        
+
         this.$router.push({
           // 此时应该跳转到添加购物车成功的页面 addCartSuccess页面
           name:'addcartsuccess',
