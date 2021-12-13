@@ -13,7 +13,7 @@ import store from '@/store'
 // 只要使用ajax这个实例对象发送请求,会先走这里面的配置项
 const ajax = axios.create({
   baseURL: '/api',  // 配置统一的公共的请求路径或者公共的转发标志
-  timeout: 5000,
+  timeout: 20000,
 });
 
 // 3. 设置请求拦截器  在请求发送之前执行里面的逻辑
@@ -27,7 +27,7 @@ ajax.interceptors.request.use(config => {
   // config.headers.userTempId = uuidv4()
   config.headers.userTempId = getUserTempId()
 
-  const token = store.state.user.userInfo.token
+  let token = store.state.user.token
 
   // 判断一下，如果没有token则要重新赋值一个token
   if (token) {
@@ -43,6 +43,9 @@ ajax.interceptors.response.use(response => {
   NProgress.done()
   return response.data
 }, err => {
+  NProgress.done()
+  // 统一处理错误
+  alert('发送ajax请求失败' + err.message)
   // return err.message  // 返回失败对象中的错误信息
   // 即使是错误信息,也应该是一个Promise对象 如果是错误信息字符串,默认也会当成成功的操作
   return Promise.reject(err)

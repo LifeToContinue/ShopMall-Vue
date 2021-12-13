@@ -5,10 +5,6 @@ import Search from '../pages/Search'
 import Detail from '@/pages/Detail'
 import AddCartSuccess from '@/pages/AddCartSuccess'
 import ShopCart from '@/pages/ShopCart'
-import Center from '@/pages/Center'
-import Pay from '@/pages/Pay'
-import Trade from '@/pages/Trade'
-import PaySuccess from '@/pages/PaySuccess'
 
 export default [
   {
@@ -71,28 +67,6 @@ export default [
         }
         可以手动的去映射params或者query参数
     */
-  },
-  {
-    // 订单中心 其实就是根据地址发货的页面
-    name: 'trade',
-    path: '/trade',
-    component:Trade
-  },
-  {
-    // 订单中心
-    name: 'center',
-    path: '/center',
-    component:Center
-  },
-  {
-    name: 'pay',
-    path: '/pay',
-    component:Pay
-  },
-  {
-    name: 'paysuccess',
-    path: '/paysuccess',
-    component:PaySuccess
   },
   {
     path: '/',

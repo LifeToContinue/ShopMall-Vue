@@ -10,7 +10,7 @@ import mockAjax from './mockAjax'
 
 // 2. 将发送请求的操作封装到函数当中 向外暴露
 // export function reqCategoryListData() {
-//   return ajax.get("/product/getBaseCategoryList")
+//   return ajax.get("/api/product/getBaseCategoryList")
 // }
 // 2. 获取三级分类导航数据
 export const reqCategoryListData = () => ajax.get("/product/getBaseCategoryList")
@@ -46,17 +46,58 @@ export const reqCode = (phone) => ajax.get(`/user/passport/sendCode/${phone}`)
 export const reqDelSelectedCartInfo = (cartInfo) => ajax.delete('/cart/batchDeleteCart', cartInfo)
 
 // 13. 实现用户注册
-export const reqRegister = (user) => ajax.post('/user/passport/register', user)
+// axios是个函数
+// 函数是函数  函数也是对象
+// 函数可以当函数用 函数也能当对象去用
+
+// 函数当函数用 加括号 axios()
+// 函数当对象用  axios.b
+
+
+export const reqRegister = (user) => {
+  return ajax({
+    url:'/user/passport/register',
+    method:'post',
+    data:user
+  })
+}
+
 
 // 14. 实现用户登陆 就可以获取服务器发送过来的token 
-export const reqUserLogin = (user) => ajax.post('/user/passport/login', user)
+export const reqUserLogin = (user) => {
+  return ajax({
+    url:'/user/passport/login',
+    method:'post',
+    data:user
+  })
+}
+
+// 根据token获取用户信息
+export const reqGetUserInfo = () => {
+  return ajax({
+    url:'/user/passport/auth/getUserInfo',
+    method:'get'
+  })
+}
+
+
 
 // 15. 用户登出
-export const reqUserLogout = () => ajax.get('/user/passport/logout')
+export const reqUserLogout = () => {
+  return ajax({
+    url:'/user/passport/logout',
+    method:'get'
+  })
+}
 
 // 16. 结算
 export const reqTradeInfoListData = () => ajax.get('/order/auth/trade')
 
+
+// {
+//   reqUserLogout，
+//   reqTradeInfoListData
+// }
 
   // (function () {
   //   reqTradeInfoListData().then(result => {
@@ -64,35 +105,42 @@ export const reqTradeInfoListData = () => ajax.get('/order/auth/trade')
   //   })
   // }())
 
+// 无论什么样的暴露方式，出文件的时候都是对象，只是形成对象的方式不同
+// 1、默认
+// export default {a:100}
+// {
+//   default:{a:100}
+// }
+
+// 引入
+// 默认暴露引入的全写
+// import {default as xxx} from './xxx'
+// 默认暴露引入的简写
+// import xxx from './xxx'
 
 
-//无论什么样的暴露方式，出文件的时候都是对象，只是形成对象的方式不同
-/* 
-  1.默认暴露
-    export default 100  ===>  {default:100}
+// 分别暴露
+// export let a = 100
+// export let b = {n:1}
 
-   引入的全写
-    import {default as xxx} from './xxx'  ====> import xxx from './xxx'
+// {
+//   a,
+//   b
+// }
 
-  2.分别暴露
-    export let a =100
-    export let b={n:1}     ===>　　{ a,b }
-
-  引入
-    import {a,b} from './xxx'
-
-  3.统一暴露
-    const a =100
-    const b={m:2}　　　　===>export　{a,b}
+// 引入
+// import {a,b} from './xxx'
 
 
-
-  import * as API from '@/api'
-
-    
+// 统一暴露
+// const a = 100
+// const b = {m:2}
+// export {
+//   a,
+//   b
+// }
 
 
 
-*/
-
-
+// 拿的就是暴露出来的对象
+// import * as xxx from './xxx'

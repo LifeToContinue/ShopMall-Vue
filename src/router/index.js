@@ -1,10 +1,8 @@
-// 1. 引入文件
+// 2. 引入并声明使用插件
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 import routes from './routes'
 import store from '@/store'
-
-// 2. 注册组件
 Vue.use(VueRouter)
 
 
@@ -59,33 +57,55 @@ const router = new VueRouter({
   }
 })
 
-// router.beforeEach((to, from, next) => {
-//   // ... to from 类型于我们导航对象中 $route
-//   console.log(to, from, next);
 
-//   next()
-//   // 在node中的中间件 next()
-// })
+router.beforeEach(async (to, from, next) => {
+  // to代表目的地的路由对象
+  // from代表起始位置的路由对象
+  // next是一个函数，主要用于拦截之后的处理
+  // next()  代表无条件放行
+  // next(false) 代表原地不动
+  // next(path/路由对象) 代表跳转到指定的路由（位置）
 
-const token = store.state.user.userInfo.token
-// console.log('router-token',token);
-router.beforeEach((to, from, next) => {
-  console.log(to.name,token);
-  if (to.name !== 'login' && !token) next({ name: 'login' })
-  // 如果用户未能验证身份，则 `next` 会被调用两次
-  next()
+  let token = store.state.user.token
+  let userInfo = store.state.user.userInfo
+  // 判断token是不是存在
+  if(token){
+    // 代表token存在,代表登录过
+    // 判断用户是不是还是去登录
+    if(to.path === '/login'){
+      // 代表用户已经登录又想去登录
+      // 不能写false，写了false就卡那了，永远不可能拿到用户信息了
+      // 写了路径，我们前置守卫就会再一次接入从头再来
+      next('/')
+    }else{
+      // 如果人不是去登录，那么此时就要看用户信息在不在
+      if(userInfo.name){
+        // 如果用户信息存在无条件放行
+        next()
+      }else{
+        // 如果用户信息不存在，就发请求获取用户
+        try {
+          // 请求获取用户信息成功，用户信息会自动存在state里面
+          // 无条件放行
+          await store.dispatch('user/getUserInfo')
+          next()
+        } catch (error) {
+          // 请求获取用户信息失败，统一认为token过期
+          // 我们要把原来的token删除,然后重新登录
+          store.dispatch('user/userLogout')
+          next('/login')
+        }
+      }
+    }
+  }else{
+    // 代表没登录过
+    next()
+  }
+
 })
 
 
-// 4. 导出路由实例
 export default router
 
-/**
- * 1. 控制底部显示与否
- *     哪几个页面是没有底部的 login register
- *     只要显示或是跳转到 login register 页面就不会显示底部
- *     相当于其它页面做一个差异化
- *
- *
- */
+
 

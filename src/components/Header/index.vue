@@ -5,9 +5,9 @@
       <div class="container">
         <div class="loginList">
           <p>尚品汇欢迎您！</p>
-          <p v-if="userInfo.name">
-            <span>{{ userInfo.name }}</span
-            >&nbsp;&nbsp; <button @click="logout">退出</button>
+          <p v-if="$store.state.user.userInfo.name">
+            <a href="javascript:;">{{ $store.state.user.userInfo.name }}</a>
+            <a href="javascript:;" class="register" @click="loginout">退出登录</a>
           </p>
           <p v-else>
             <span>请</span>
@@ -93,6 +93,14 @@ export default {
 
       this.$router.push(location)
     },
+    async loginout(){
+      try {
+        await this.$store.dispatch('user/userLogout')
+        this.$router.push('/')
+      } catch (error) {
+        alert('退出登录失败')
+      }
+    }
     /* btnSearch() {
       // this.$router.push('/search',()=>{},()=>{})
       // this.$router.push('/search')
@@ -128,13 +136,7 @@ export default {
     //     console.log(result.message);
     //   }
     // },
-    async logout() {
-      // 登出的时候，要删除vuex和本地存储中的token 所以要dispath
-      await this.$store.dispatch("user/UserLogout");
-
-      // 应该跳转到登陆页面
-      this.$router.push("/login");
-    },
+    
   },
 };
 
