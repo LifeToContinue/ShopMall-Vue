@@ -4,6 +4,7 @@ import router from './router'
 import store from './store'
 import TypeNav from '@/components/TypeNav'
 import Pagination from '@/components/Pagination'
+import '@/plugins/lazyload'
 
 // 引入swiper样式文件
 import 'swiper/css/swiper.min.css'
@@ -38,6 +39,8 @@ Vue.prototype.$message = Message;
 import './mock/mockServer' // 引入进来之后开启服务器  相当于已经开启服务器了
 
 import * as API from '@/api'
+
+
 
 
 Vue.config.productionTip = false // 关闭生产提示

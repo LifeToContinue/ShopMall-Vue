@@ -1,12 +1,12 @@
 <template>
   <div class="spec-preview">
-    <img ref="img1" :src="skuInfo.skuDefaultImg" />
+    <img ref="img1" v-lazy="skuInfo.skuDefaultImg" />
     <div class="event" @mousemove="move"></div>
     <!-- 右侧的大图  这个大图和左边的图片其实是一个，只不过是放大2倍 -->
     <div class="big">
       <img
         ref="img2"
-        :src="skuInfo.skuDefaultImg"
+        v-lazy="skuInfo.skuDefaultImg"
         :style="{ left: -2 * left + 'px', top: -2 * top + 'px' }"
       />
     </div>

@@ -1,11 +1,11 @@
 <template>
   <div class="pagination">
-    <button @click="changePageNo(pageNo - 1)" :disabled="pageNo == 1 || totalPage<1">
+    <button @click="$emit('changePageNo',pageNo-1)" :disabled="pageNo == 1 || totalPage<1">
       上一页
     </button>
     <!-- 当起始页已经是1了 现在这个已经存在的1就不要显示 -->
-    <button v-show="startAndEnd.start > 1" @click="changePageNo(1)">1</button>
-    <span v-show="startAndEnd.start > 2">...</span>
+    <button v-show="startAndEnd.start > 1" @click="$emit('changePageNo',1)">1</button>
+    <button v-show="startAndEnd.start > 2">...</button>
     <!-- <button>{{ startAndEnd.start }}</button>
     遍历出来...
     <button>{{ startAndEnd.end }}</button> -->
@@ -25,7 +25,7 @@
       v-for="(_, index) in startAndEnd.end - startAndEnd.start + 1"
       :key="_"
       :class="{ active: pageNo === index + startAndEnd.start }"
-      @click="changePageNo(index + startAndEnd.start)"
+      @click="$emit('changePageNo',index + startAndEnd.start)"
     >
       {{ index + startAndEnd.start }}
     </button>
@@ -33,11 +33,11 @@
     <button v-show="startAndEnd.end < totalPage - 1">···</button>
     <button
       v-show="startAndEnd.end < totalPage"
-      @click="changePageNo(totalPage)"
+      @click="$emit('changePageNo',totalPage)"
     >
       总页数：{{ totalPage }}
     </button>
-    <button @click="changePageNo(pageNo + 1)" :disabled="pageNo ==totalPage || totalPage<1">下一页</button>
+    <button @click="$emit('changePageNo',pageNo + 1)" :disabled="pageNo ==totalPage || totalPage<1">下一页</button>
 
     <span>共 {{ total }} 条</span>
   </div>
@@ -46,7 +46,7 @@
 <script>
 export default {
   name: "Pagination",
-  props: ["total", "pageNo", "pageSize", "continues", "changePageNo"],
+  props: ["total", "pageNo", "pageSize", "continues"],
   computed: {
     // 在这个位置 我们要计算出来 总页数totalPage
     // 还要算连贯页的开始和结束

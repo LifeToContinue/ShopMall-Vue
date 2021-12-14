@@ -1,13 +1,46 @@
-import Home from '../pages/Home'
-import Login from '../pages/Login'
-import Register from '../pages/Register'
-import Search from '../pages/Search'
-import Detail from '@/pages/Detail'
-import AddCartSuccess from '@/pages/AddCartSuccess'
-import ShopCart from '@/pages/ShopCart'
-import Pay from '@/pages/Pay'
-import PaySuccess from '@/pages/PaySuccess'
-import Trade from '@/pages/Trade'
+// const Home=()=>import()
+const Home = () => import('../pages/Home')
+// import Login from '../pages/Login'
+const Login=()=>import('../pages/Login')
+// import Register from '../pages/Register'
+const Register=()=>import('../pages/Register')
+// import Search from '../pages/Search'
+const Search=()=>import('../pages/Search')
+// import Detail from '@/pages/Detail'
+const Detail=()=>import('@/pages/Detail')
+// import AddCartSuccess from '@/pages/AddCartSuccess'
+const AddCartSuccess=()=>import('@/pages/AddCartSuccess')
+// import ShopCart from '@/pages/ShopCart'
+const ShopCart=()=>import('@/pages/ShopCart')
+// import Pay from '@/pages/Pay'
+const Pay=()=>import('@/pages/Pay')
+// import PaySuccess from '@/pages/PaySuccess'
+const PaySuccess=()=>import('@/pages/PaySuccess')
+// import Trade from '@/pages/Trade'
+const Trade=()=>import('@/pages/Trade')
+// import Center from '@/pages/Center'
+const Center=()=>import('@/pages/Center')
+// import MyOrder from '@/pages/Center/MyOrder'
+const MyOrder=()=>import('@/pages/Center/MyOrder')
+// import GroupOrder from '@/pages/Center/GroupOrder'
+const GroupOrder=()=>import('@/pages/Center/GroupOrder')
+
+
+/* import XXX from './xxx'    叫同步引入，也叫静态引入，它不能动态引入，想用的时候在引入是不行的
+同步引入必须是放在文件最上面，一上来所有的都已经引入了
+webpack在打包的时候会把所有的引入的组件统统打包，打包成一个大的文件
+这个打包的文件越大，浏览器在加载的时候越费劲，效率会越低
+因此，我们以后生产阶段路由组件在引
+入的时候都不会使用这种方式同步引入
+
+而是要利用动态引入
+import('./xxx') 叫动态引入，如果我们使用这个引入方式，那么
+webpack在看到我们使用动态引入方式，会把动态引入的所有组件，单独进行打包
+每个路由组件会单独打包成一个小的组件，小的文件浏览器不会立即去加载，而是当我们访问对应的每个路由界面的时候才会加载对应的小文件
+打包的主文件变小，浏览器加载速度会更快 */
+
+
+
 
 export default [
   {
@@ -43,7 +76,18 @@ export default [
   {
     name: 'addcartsuccess',
     path: '/addCartSuccess',
-    component:AddCartSuccess
+    component:AddCartSuccess,
+    //路由独享守卫
+
+    beforeEnter: (to, from, next) => {
+      let skuNum=to.query.skuNum
+      let skuInfo=sessionStorage.getItem('skuInfo_key')
+      if(skuNum && skuInfo){
+        next()
+      }else{
+        next('/')
+      }
+    }
   },
   {
     name: 'shopcart',
@@ -74,20 +118,60 @@ export default [
   {
     name:'pay',
     path:'/pay',
-    component:Pay
+    component:Pay,
+    beforeEnter: (to, from, next) => {
+      if(from.path==='/trade'){
+        next()
+      }else{
+        next('/')
+      }
+    }
   },
   {
     name:'paySuccess',
     path:'/paySuccess',
-    component:PaySuccess
+    component:PaySuccess,
+    beforeEnter: (to, from, next) => {
+      if(from.path==='/pay'){
+        next()
+      }else{
+        next('/')
+      }
+    }
   },
   {
     name:'trade',
-    path:'/Trade',
-    component:Trade
+    path:'/trade',
+    component:Trade,
+    beforeEnter: (to, from, next) => {
+      if(from.path==='/shopCart'){
+        next()
+      }else{
+        next(false)
+      }
+    }
   },
   {
     path: '/',
     redirect: '/home'
+  },
+  {
+    name:'center',
+    path:'/center',
+    component:Center,
+    children:[
+      {
+        path:'myorder',
+        component:MyOrder
+      },
+      {
+        path:'grouporder',
+        component:GroupOrder
+      },
+      {
+        path:'/center',
+        redirect: '/center/myorder'
+      }
+    ]
   }
 ]

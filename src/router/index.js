@@ -99,7 +99,14 @@ router.beforeEach(async (to, from, next) => {
     }
   }else{
     // 代表没登录过
-    next()
+    //如果用户没登陆访问   交易相关  支付相关  用户中心相关，我们不能让他去
+    //应该让用户登录去
+    let target=to.path
+    if(target.indexOf('/trade')===0 || target.indexOf('/pay')===0 || target.startsWith('/center')){
+      next('/login?redirect='+target)
+    }else{
+      next()
+    }
   }
 
 })

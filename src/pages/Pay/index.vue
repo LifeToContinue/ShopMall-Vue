@@ -101,6 +101,7 @@ export default {
     return {
       orderId: "",
       payInfo: {},
+      payStatus:1
     };
   },
   beforeMount() {
@@ -128,18 +129,59 @@ export default {
       try {
         const imgUrl = await QRCode.toDataURL(this.payInfo.codeUrl);
         // 第二步：消息盒子弹出二维码
-        this.$alert(
-          `<img src="${imgUrl}" alt="">`,
-          "请你微信扫码支付",
-          {
-            dangerouslyUseHTMLString: true,
-            showClose: false, //MessageBox 是否显示右上角关闭按钮
-            showCancelButton: true, //显示取消按钮
-            cancelButtonText: "支付遇到问题", //取消按钮的文本内容
-            confirmButtonText: "我已成功支付", //确定按钮的文本内容
-            center: true, //	是否居中布局
+        this.$alert(`<img src="${imgUrl}" alt="">`, "请你微信扫码支付", {
+          dangerouslyUseHTMLString: true,
+          showClose: false, //MessageBox 是否显示右上角关闭按钮
+          showCancelButton: true, //显示取消按钮
+          cancelButtonText: "支付遇到问题", //取消按钮的文本内容
+          confirmButtonText: "我已成功支付", //确定按钮的文本内容
+          center: true, //	是否居中布局
+          beforeClose:(action,instance,done)=>{
+            //最终按钮的逻辑转移到这里面去写
+            if(action ==='confirm'){
+              if(!this.payStatus){
+                this.$message.warning('想白嫖?快付钱！！！')
+              }
+            }else if(action==='cancel'){
+              this.$message.success('请联系工作人员')
+               //清楚定时器
+              clearInterval(this.timer)
+              this.timer=null
+              //关闭
+              done()
+            }
           }
-        );
+        }
+        )
+        //.then内部，处理的是你点击确定按钮的逻辑
+        //按道理我们点击却的按钮要在.then内部去写，但是它会强制关闭弹窗
+        //所以，我们逻辑不在这里面写
+        .then(()=>{})
+        //.catch内部，处理的是你点击取消按钮的逻辑
+        .catch(()=>{})
+
+
+
+        //第三步：轮询支付状态进行处理
+        if (!this.timer) {
+          //保证一个定时器
+          this.timer = setInterval(async () => {
+            const result = await this.$API.reqPaystatus(this.orderId);
+            if (result === 200) {
+              //代表用户支付成功
+
+              //保存支付成功状态
+              this.payStatus=result.code
+              //清楚定时器
+              clearInterval(this.timer)
+              this.timer=null
+              //关闭弹窗
+              this.$msgbox.close()
+              //自动跳转到支付成功页面
+              this.$router.push('/paySuccess')
+            }
+          }, 2000);
+        }
       } catch (error) {
         this.$message.error("生成二维码失败");
       }

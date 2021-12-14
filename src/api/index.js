@@ -123,6 +123,21 @@ export const reqPayInfo=(orderId)=>{
   })
 }
 
+//20.请求获取支付状态
+export const reqPaystatus=(orderId)=>{
+  return ajax({
+    url:`/payment/weixin/queryPayStatus/${orderId}`,
+    method:'get'
+  })
+}
+
+//21.请求获取订单列表
+export const reqMyOrderInfo=(page,limit)=>{
+  return ajax({
+    url:`/order/auth/${page}/${limit}`,
+    method:'get'
+  })
+}
 
 // {
 //   reqUserLogout，
