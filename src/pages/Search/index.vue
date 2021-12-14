@@ -135,7 +135,7 @@ export default {
         trademark: "", // 品牌
         order: "2:asc", // 排序方式  1 综合  2 价格
         pageNo: 1, // 页码 是第几页 默认是第1页
-        pageSize: 3, // 每页要显示的数量
+        pageSize: 5, // 每页要显示的数量
       },
     };
   },

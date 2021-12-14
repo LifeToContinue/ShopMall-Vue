@@ -1,13 +1,14 @@
 /**
  * 此模块是用来进行用户登陆及登出的
  */
- import {reqCode, reqGetUserInfo, reqRegister, reqUserLogin, reqUserLogout} from "@/api"
+ import {reqCode, reqGetUserInfo, reqRegister, reqUserAddressList, reqUserLogin, reqUserLogout} from "@/api"
 
  const state = {
    code:'',
    // token:'', 登录的时候我们是空串,刷新页面token丢失,信息就拿不到
    token:localStorage.getItem('token_key'),
-   userInfo:{}
+   userInfo:{},
+   userAddressList:[]
  }
  
  const mutations = {
@@ -24,6 +25,9 @@
    RESET_USERINFO(state){
      state.token = ''
      state.userInfo = {}
+   },
+   RECEIVE_USERADDRESSLIST(state,userAddressList){
+     state.userAddressList=userAddressList
    }
  
  }
@@ -100,6 +104,14 @@
        return 'ok'
      }else{
        return Promise.reject(new Error('failed'))
+     }
+   },
+
+   //获取收货地址
+   async getUserAddressList({commit}){
+     const result=await reqUserAddressList()
+     if(result.code===200){
+       commit('RECEIVE_USERADDRESSLIST',result.data)
      }
    }
  

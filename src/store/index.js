@@ -1,10 +1,11 @@
 // 1. 引入插件
 import Vue from 'vue'
 import Vuex from 'vuex'
-import home from './home'
-import search from './search'
-import detail from './detail'
-import user from './user'
+import home from './modules/home'
+import search from './modules/search'
+import detail from './modules/detail'
+import user from './modules/user'
+import trade from './modules/trade'
 // 2. 注册插件
 Vue.use(Vuex)
 
@@ -25,7 +26,7 @@ const store = new Vuex.Store({
   actions,
   mutations,
   getters,
-  modules:{home,search,detail,user}  // 和store对象关联起来  类似于组件注册
+  modules:{home,search,detail,user,trade}  // 和store对象关联起来  类似于组件注册
 })
 
 // 5. 导出

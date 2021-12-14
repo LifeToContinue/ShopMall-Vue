@@ -94,9 +94,10 @@
           <i class="summoney">{{ selectedMoney }}</i>
         </div>
         <div class="sumbtn">
-          <a class="sum-btn" href="javascript:;" @click="$router.push('/trade')"
+          <router-link class="sum-btn" to="/trade">结算</router-link>
+          <!--  <a class="sum-btn" href="javascript:;" @click="$router.push('/trade')"
             >结算</a
-          >
+          > -->
         </div>
       </div>
     </div>
@@ -117,6 +118,13 @@
         <button class="btn primary" @click="delShopCartInfo">确定</button>
       </template>
     </Dialog>
+
+    <el-button round>圆角按钮</el-button>
+    <el-button type="primary" round>主要按钮</el-button>
+    <el-button type="success" round>成功按钮</el-button>
+    <el-button type="info" round>信息按钮</el-button>
+    <el-button type="warning" round>警告按钮</el-button>
+    <el-button type="danger" round>危险按钮</el-button>
   </div>
 </template>
 
@@ -155,7 +163,7 @@ export default {
     if (result.code === 200) {
       console.log(result.data);
       // 为了实现响应式，所以在当前的data中先添加一个cartInfoList
-      this.cartInfoList = result.data[0].cartInfoList;
+      this.cartInfoList = result.data[0]?.cartInfoList || [];
     } else {
       console.log(result.message);
     }
@@ -242,7 +250,7 @@ export default {
       const { skuId } = cartInfo;
       let num = 0;
       switch (type) {
-        case "increment":{
+        case "increment": {
           cartInfo.skuNum++; // 这个是页面显示的数量
           num++; // 这个才是发给服务器的更改数量
           if (cartInfo.skuNum > 200) {
@@ -250,8 +258,8 @@ export default {
             num = 0; // 将num置为0
           }
           break;
-          }
-        case "decrement":{
+        }
+        case "decrement": {
           cartInfo.skuNum--;
           num--;
           if (cartInfo.skuNum < 1) {
@@ -259,8 +267,8 @@ export default {
             num = 0; // 将num置为0
           }
           break;
-          }
-        case "change":{
+        }
+        case "change": {
           // event.target 表示当前事件源 文本框中值的获取要使用value
           let oldSkuNum = cartInfo.skuNum;
           let newSkuNum = event.target.value; // 变量本地化 不用每次重新获取 需要先存储到变量中
@@ -280,7 +288,7 @@ export default {
           }
 
           break;
-          }
+        }
       }
 
       // 去发送请求 更新服务器端的已购买商品的数量 skuId  skuNum(是需要变动的数量，不是当前显示出来的数量)

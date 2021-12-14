@@ -5,6 +5,9 @@ import Search from '../pages/Search'
 import Detail from '@/pages/Detail'
 import AddCartSuccess from '@/pages/AddCartSuccess'
 import ShopCart from '@/pages/ShopCart'
+import Pay from '@/pages/Pay'
+import PaySuccess from '@/pages/PaySuccess'
+import Trade from '@/pages/Trade'
 
 export default [
   {
@@ -67,6 +70,21 @@ export default [
         }
         可以手动的去映射params或者query参数
     */
+  },
+  {
+    name:'pay',
+    path:'/pay',
+    component:Pay
+  },
+  {
+    name:'paySuccess',
+    path:'/paySuccess',
+    component:PaySuccess
+  },
+  {
+    name:'trade',
+    path:'/Trade',
+    component:Trade
   },
   {
     path: '/',
