@@ -15,9 +15,10 @@ import 'element-ui/lib/theme-chalk/index.css';
 Vue.use(ElementUI) */
 
 //element-ui的按需引入
-import { Button,MessageBox,Message } from 'element-ui';
+import { Button,MessageBox,Message,Input } from 'element-ui';
 // Vue.component(Button.name, Button);    上线两种形式一样
 Vue.use(Button)
+Vue.use(Input)
 /* 
   按需引入的时候注意：重点
   element-ui当中其实包含两大类组件

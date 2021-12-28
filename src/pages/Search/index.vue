@@ -99,12 +99,19 @@
           <!-- 分页器组件 -->
           <!-- 我们先传一些理想的模拟数据 传total pageNo continus pageSize 计算出总页数 连贯页的开始和结束 -->
           <!-- <Pagination :total="91" :pageNo="1" :pageSize="3" :continues="5"></Pagination> -->
-          <Pagination
+         <!--  <Pagination
             :total="total"
             :pageNo="searchParams.pageNo"
             :pageSize="searchParams.pageSize"
             :continues="5"
             @changePageNo="getPageNo"
+          ></Pagination> -->
+          <Pagination
+            :currentPage="searchParams.pageNo" 
+            :total="total"
+            :pageSize="searchParams.pageSize"
+            :continueNo="5"
+            @changePageNo="changePageNo"
           ></Pagination>
         </div>
       </div>
@@ -135,7 +142,7 @@ export default {
         trademark: "", // 品牌
         order: "2:asc", // 排序方式  1 综合  2 价格
         pageNo: 1, // 页码 是第几页 默认是第1页
-        pageSize: 5, // 每页要显示的数量
+        pageSize: 2, // 每页要显示的数量
       },
     };
   },
@@ -181,7 +188,7 @@ export default {
 
       // 获取地址栏中的数据 其实就相当于是剩下了搜索关键词
       const { keyword } = this.$route.query;
-
+      this.searchParams.pageNo=1
       // 根据搜索关键词改变浏览器地址栏 并发送请求
       this.$router.push({
         name: "search",
@@ -198,6 +205,7 @@ export default {
       // 其实移除某面包屑就相当于是留下地址栏中剩余项
       // 思路就是剩下categoryName 将keyword设置为undefined
       const { query } = this.$route;
+      this.searchParams.pageNo=1
       // 改变路由地址
       this.$router.push({
         name: "search",
@@ -216,7 +224,7 @@ export default {
       this.searchParams.trademark = `${trademark.tmId}:${trademark.tmName}`;
       // console.log(this.searchParams.trademark);
       // 当前的SearchSelect组件中的品牌不需要拼接在地址栏，只需要显示在面包屑位置 并将获取的数据重新渲染在下面的商品列表中即可
-
+      this.searchParams.pageNo=1
       // 重新发送请求
       // this.$store.dispatch("search/getSearchInfoData", this.searchParams);
       this.search();
@@ -226,7 +234,7 @@ export default {
       // 所谓移除掉某个面包屑 其实就是将那个数据设置为undefined
       // 因为移除某项面包屑之后，要重新发送请求，发送请求的时候，路由会将undefined值过滤掉
       this.searchParams.trademark = undefined;
-
+      this.searchParams.pageNo=1
       // 根据剩下或是修改后的参数继续发送请求，重新渲染商品列表
       // 重新发送请求
       // this.$store.dispatch("search/getSearchInfoData", this.searchParams);
@@ -241,7 +249,7 @@ export default {
       if (this.searchParams.props.indexOf(prop) == -1) {
         // 如果没有这个属性的话，才需要往里添加 如果已经有了，就不需要再添加了
         this.searchParams.props.push(prop);
-
+        this.searchParams.pageNo=1
         // 重新发送请求
         // this.$store.dispatch("search/getSearchInfoData", this.searchParams);
         this.search();
@@ -253,20 +261,24 @@ export default {
       // console.log(this.searchParams.props);
       // console.log('index',index);
       this.searchParams.props.splice(index, 1);
-
+      this.searchParams.pageNo=1
       // 继续发送请求
       // 重新发送请求
       // this.$store.dispatch("search/getSearchInfoData", this.searchParams);
       this.search();
     },
     // 7. 获取传递过来的新页码
-    getPageNo(currentPage) {
+    /* getPageNo(currentPage) {
       // console.log('currentPage',currentPage);
       // 根据新页码去更新pageNo
       this.searchParams.pageNo = currentPage;
 
       // 重新发送请求
       this.search();
+    }, */
+    changePageNo(page){
+      this.searchParams.pageNo=page
+      this.search()
     },
     // 8. 排序
     changeOrder(newNum){
@@ -289,7 +301,7 @@ export default {
       }else {
         this.searchParams.order = `${newNum}:desc`
       }
-
+      this.searchParams.pageNo=1
       // 8.3 发送请求进行排序
       this.search()
     }
@@ -317,7 +329,7 @@ export default {
 
         // 比较好的办法  使用后面的参数将前面的数据给覆盖掉(合并掉)
         Object.assign(this.searchParams, this.$route.query,this.$route.params);
-
+        this.searchParams.pageNo=1
         this.$store.dispatch("search/getSearchInfoData", this.searchParams);
       },
     },

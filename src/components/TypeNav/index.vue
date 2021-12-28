@@ -3,49 +3,49 @@
     <div class="container">
       <div class="nav-left" @mouseleave="handlerLeave">
         <h2 class="all" @mouseenter="isShowNav = true">全部商品分类</h2>
-        <div class="sort" v-show="isShowNav">
-          <div class="all-sort-list2" @click="btnSearch">
-            <div
-              class="item"
-              v-for="c1 in categoryList.slice(0, -2)"
-              :key="c1.categoryId"
-            >
-              <h3>
-                <a
-                  :data-id1="c1.categoryId"
-                  :data-name="c1.categoryName"
-                  >{{ c1.categoryName }}</a
-                >
-              </h3>
-              <div class="item-list clearfix">
-                <div class="subitem">
-                  <dl
-                    class="fore"
-                    v-for="c2 in c1.categoryChild"
-                    :key="c2.categoryId"
-                  >
-                    <dt>
-                      <a
-                        :data-id2="c2.categoryId"
-                        :data-name="c2.categoryName"
-                        >{{ c2.categoryName }}</a
-                      >
-                    </dt>
-                    <dd>
-                      <em v-for="c3 in c2.categoryChild" :key="c3.categoryId">
+        <transition name="sort">
+          <div class="sort" v-show="isShowNav">
+            <div class="all-sort-list2" @click="btnSearch">
+              <div
+                class="item"
+                v-for="c1 in categoryList.slice(0, -2)"
+                :key="c1.categoryId"
+              >
+                <h3>
+                  <a :data-id1="c1.categoryId" :data-name="c1.categoryName">{{
+                    c1.categoryName
+                  }}</a>
+                </h3>
+                <div class="item-list clearfix">
+                  <div class="subitem">
+                    <dl
+                      class="fore"
+                      v-for="c2 in c1.categoryChild"
+                      :key="c2.categoryId"
+                    >
+                      <dt>
                         <a
-                          :data-id3="c3.categoryId"
-                          :data-name="c3.categoryName"
-                          >{{ c3.categoryName }}</a
+                          :data-id2="c2.categoryId"
+                          :data-name="c2.categoryName"
+                          >{{ c2.categoryName }}</a
                         >
-                      </em>
-                    </dd>
-                  </dl>
+                      </dt>
+                      <dd>
+                        <em v-for="c3 in c2.categoryChild" :key="c3.categoryId">
+                          <a
+                            :data-id3="c3.categoryId"
+                            :data-name="c3.categoryName"
+                            >{{ c3.categoryName }}</a
+                          >
+                        </em>
+                      </dd>
+                    </dl>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
+        </transition>
       </div>
       <nav class="nav">
         <a href="###">服装城</a>
@@ -79,35 +79,35 @@ export default {
     ...mapState("home", ["categoryList"]), // 就相当于将vuex中的数据映射到当前组件上了
   },
   methods: {
-    btnSearch(event){
+    btnSearch(event) {
       //点击之后，获取到点击id元素
-      let target=event.target
+      let target = event.target;
       //从点击的元素身上盲区，data-开头自定义属性组成的对象
-      let dataset=target.dataset
+      let dataset = target.dataset;
       //盲解
-      let{id1,id2,id3,name}=dataset
+      let { id1, id2, id3, name } = dataset;
 
-      if(name){
+      if (name) {
         //代表点的是a标签
-        let location={
-          name:'search',
-        }
-        let query={
-          categoryName:name
-        }
-        if(id1){
-          query.category1Id=id1
-        }else if(id2){
-          query.category2Id=id2
-        }else{
-          query.category3Id=id3
+        let location = {
+          name: "search",
+        };
+        let query = {
+          categoryName: name,
+        };
+        if (id1) {
+          query.category1Id = id1;
+        } else if (id2) {
+          query.category2Id = id2;
+        } else {
+          query.category3Id = id3;
         }
 
-        location.query=query
+        location.query = query;
 
         //判断之前有没有params,合并参数
-        location.params=this.$route.params
-        this.$router.push(location)
+        location.params = this.$route.params;
+        this.$router.push(location);
       }
     },
 
@@ -139,7 +139,7 @@ export default {
         },
       });
     }, */
-    
+
     // 鼠标离开时的操作
     handlerLeave() {
       // search组件中 如果鼠标离开了父级标签，则让isShowNav=false
@@ -257,7 +257,19 @@ export default {
       position: absolute;
       background: #fafafa;
       z-index: 999;
-      border-top:2px solid #e1251b;
+      border-top: 2px solid #e1251b;
+
+      &.sort-enter {
+        height: 0;
+        opacity: 0;
+      }
+      &.sort-enter-to {
+        height: 461px;
+        opacity: 1;
+      }
+      &.sort-enter-active {
+        transition: all  2s;
+      }
 
       .all-sort-list2 {
         .item {

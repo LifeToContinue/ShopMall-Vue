@@ -1,88 +1,90 @@
 <template>
   <div class="pagination">
-    <button @click="$emit('changePageNo',pageNo-1)" :disabled="pageNo == 1 || totalPage<1">
-      上一页
-    </button>
-    <!-- 当起始页已经是1了 现在这个已经存在的1就不要显示 -->
-    <button v-show="startAndEnd.start > 1" @click="$emit('changePageNo',1)">1</button>
-    <button v-show="startAndEnd.start > 2">...</button>
-    <!-- <button>{{ startAndEnd.start }}</button>
-    遍历出来...
-    <button>{{ startAndEnd.end }}</button> -->
-    <!-- <button v-for="(_,index) in continues" :key="_" :class="{active: pageNo === index + startAndEnd.start}">
-      {{index + startAndEnd.start}}
-    </button> -->
+    <button :disabled="currentPage===1" @click="$emit('changePageNo',currentPage-1)"> 上一页</button>
+    <button v-if="startEnd.start>1" @click="$emit('changePageNo',1)"> 1</button>
+    <button v-if="startEnd.start>2">···</button>
 
-    <!-- <button
-      v-for="(_, index) in startAndEnd.end - startAndEnd.start + 1"
-      :key="_"
-      :class="{ active: pageNo === index + startAndEnd.start }"
-      @click="handlerChangePageNo(index + startAndEnd.start)"
-    >
-      {{ index + startAndEnd.start }}
-    </button> -->
-    <button
-      v-for="(_, index) in startAndEnd.end - startAndEnd.start + 1"
-      :key="_"
-      :class="{ active: pageNo === index + startAndEnd.start }"
-      @click="$emit('changePageNo',index + startAndEnd.start)"
-    >
-      {{ index + startAndEnd.start }}
-    </button>
+    <!-- v-for和v-if同时使用，v-for优先级大于v-if
+      官方不推荐这么使用，但是可以使用:效率慢，遍历一个判断一个
+     -->
 
-    <button v-show="startAndEnd.end < totalPage - 1">···</button>
-    <button
-      v-show="startAndEnd.end < totalPage"
-      @click="$emit('changePageNo',totalPage)"
-    >
-      总页数：{{ totalPage }}
-    </button>
-    <button @click="$emit('changePageNo',pageNo + 1)" :disabled="pageNo ==totalPage || totalPage<1">下一页</button>
+    <!-- <button v-for="(page,index) in startEnd.end" :key="page" v-if="page>=startEnd.start">{{page}}</button> -->
+    <!-- 上面的做法不推荐，如何优化   计算属性去计算出来不需要判断直接遍历的数据 -->
+    <button @click="$emit('changePageNo',page)" :class="{active:currentPage===page}" v-for="(page,index) in continueNoArr" :key="page">{{page}}</button>
 
-    <span>共 {{ total }} 条</span>
+    <button  v-if="startEnd.end<totalPageNo-1">···</button>
+    <button v-if="startEnd.end<totalPageNo" @click="$emit('changePageNo',totalPageNo)">{{totalPageNo}}</button>
+    <button :disabled="currentPage===totalPageNo" @click="$emit('changePageNo',currentPage+1)">下一页</button>
+
+    <span>共{{total}}条</span>
   </div>
 </template>
 
 <script>
 export default {
   name: "Pagination",
-  props: ["total", "pageNo", "pageSize", "continues"],
+  props: {
+    currentPage:Number,
+    total:{
+      type:Number,
+      default:0
+    },
+    pageSize:{
+      type:Number,
+      default:10
+    },
+    continueNo:{
+      type:Number,
+      default:5
+    }
+  },
   computed: {
     // 在这个位置 我们要计算出来 总页数totalPage
     // 还要算连贯页的开始和结束
-    totalPage() {
+    totalPageNo() {
       //  const {total,pageSize} = this
       //  return Math.ceil(this.total / this.pageSize)
       const { total, pageSize } = this;
       return Math.ceil(total / pageSize);
     },
-    startAndEnd() {
-      const { pageNo, continues, totalPage } = this;
-      let start, end;
+    startEnd() {
+      const { currentPage, continueNo, totalPageNo } = this;
+      // console.log(currentPage, continueNo, totalPageNo);
+      let start=0;
+      let end=0;
       // if (continues > this.totalPage) {
-      if (continues > totalPage) {
+      if (totalPageNo<=continueNo) {
         // total 13  pageSize5  totalPage3页
         // 当连贯页数大于总页数的时候，比如continues是5 而总页数只有4
-        end = totalPage; // 最后一页就是总页数
+        end = totalPageNo; // 最后一页就是总页数
         start = 1; // 所以起始页是1
       } else {
-        start = pageNo - parseInt(continues / 2);
-        end = pageNo + parseInt(continues / 2);
+        start = currentPage - Math.floor(continueNo / 2);
+        end = currentPage + Math.floor(continueNo / 2);
 
         // 如果计算起始页小于1了,则起始页只能是1
         if (start < 1) {
           start = 1;
-          end = continues; // 就是相当于从起始页重新排列continues个页码
+          end = continueNo; // 就是相当于从起始页重新排列continues个页码
         }
-        if (end > totalPage) {
+        if (end > totalPageNo) {
           // 如果算出来的连贯页中的结束页大于了总页数
-          end = totalPage; // 结束只能是总页数
-          start = totalPage - continues + 1; // 开始页是从结束页向前推continues个 但是要加1
+          end = totalPageNo; // 结束只能是总页数
+          start = totalPageNo - continueNo + 1; // 开始页是从结束页向前推continues个 但是要加1
         }
       }
 
       return { start, end };
     },
+    continueNoArr(){
+      let {start,end}=this.startEnd
+      let arr=[]
+      for(let i=start;i<=end;i++){
+        arr.push(i)
+        // console.log(arr);
+      }
+      return arr
+    }
   },
   methods: {
     // handlerChangePageNo(num){

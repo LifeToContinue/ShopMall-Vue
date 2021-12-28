@@ -99,9 +99,9 @@
           </tbody>
         </table>
       </div>
-      <Pagination :pageNo="page" :pageSize="limit" :total="total" :continues="5" @changePageNo="changeNo">
+      <!-- <Pagination :pageNo="page" :pageSize="limit" :total="total" :continues="5" @changePageNo="changeNo">
           
-      </Pagination>
+      </Pagination> -->
     </div>
     <!--猜你喜欢-->
     <div class="like">
